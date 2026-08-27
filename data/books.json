@@ -1,0 +1,525 @@
+{
+  "groups": {
+    "at": [
+      {
+        "id": "pentateuco",
+        "name": "Pentateuco",
+        "books": [
+          "gn",
+          "ex",
+          "lv",
+          "nm",
+          "dt"
+        ]
+      },
+      {
+        "id": "historicos",
+        "name": "Históricos",
+        "books": [
+          "js",
+          "jz",
+          "rt",
+          "1sm",
+          "2sm",
+          "1rs",
+          "2rs",
+          "1cr",
+          "2cr",
+          "ed",
+          "ne",
+          "et"
+        ]
+      },
+      {
+        "id": "poeticos",
+        "name": "Poéticos",
+        "books": [
+          "job",
+          "sl",
+          "pv",
+          "ec",
+          "ct"
+        ]
+      },
+      {
+        "id": "profetas",
+        "name": "Profetas",
+        "books": [
+          "is",
+          "jr",
+          "lm",
+          "ez",
+          "dn",
+          "os",
+          "jl",
+          "am",
+          "ob",
+          "jn",
+          "mq",
+          "na",
+          "hc",
+          "sf",
+          "ag",
+          "zc",
+          "ml"
+        ]
+      }
+    ],
+    "nt": [
+      {
+        "id": "evangelhos",
+        "name": "Evangelhos",
+        "books": [
+          "mt",
+          "mc",
+          "lc",
+          "jo"
+        ]
+      },
+      {
+        "id": "historia",
+        "name": "História",
+        "books": [
+          "atos"
+        ]
+      },
+      {
+        "id": "cartas",
+        "name": "Cartas",
+        "books": [
+          "rm",
+          "1co",
+          "2co",
+          "gl",
+          "ef",
+          "fp",
+          "cl",
+          "1ts",
+          "2ts",
+          "1tm",
+          "2tm",
+          "tt",
+          "fm",
+          "hb",
+          "tg",
+          "1pe",
+          "2pe",
+          "1jo",
+          "2jo",
+          "3jo",
+          "jd"
+        ]
+      },
+      {
+        "id": "profecia",
+        "name": "Profecia",
+        "books": [
+          "ap"
+        ]
+      }
+    ]
+  },
+  "books": {
+    "gn": {
+      "name": "Gênesis",
+      "short": "Gn",
+      "chapters": 50,
+      "desc": "O livro dos começos: a criação, o primeiro pecado, o dilúvio e a história dos patriarcas — Abraão, Isaque, Jacó e José.",
+      "parts": [
+        "01-17",
+        "18-36",
+        "37-50"
+      ]
+    },
+    "ex": {
+      "name": "Êxodo",
+      "short": "Ex",
+      "chapters": 40,
+      "desc": "A libertação de Israel da escravidão no Egito, a travessia do mar e a entrega da Lei no Sinai."
+    },
+    "lv": {
+      "name": "Levítico",
+      "short": "Lv",
+      "chapters": 27,
+      "desc": "As leis de santidade, os sacrifícios e o chamado para um povo separado para Deus."
+    },
+    "nm": {
+      "name": "Números",
+      "short": "Nm",
+      "chapters": 36,
+      "desc": "A jornada de Israel pelo deserto, entre provas, rebeldias e a fidelidade de Deus."
+    },
+    "dt": {
+      "name": "Deuteronômio",
+      "short": "Dt",
+      "chapters": 34,
+      "desc": "Os discursos finais de Moisés: lembrar, obedecer e amar a Deus acima de tudo."
+    },
+    "js": {
+      "name": "Josué",
+      "short": "Js",
+      "chapters": 24,
+      "desc": "A conquista da Terra Prometida e a distribuição da herança entre as tribos."
+    },
+    "jz": {
+      "name": "Juízes",
+      "short": "Jz",
+      "chapters": 21,
+      "desc": "Um ciclo repetido de queda e livramento, quando Deus levantava líderes para resgatar Israel."
+    },
+    "rt": {
+      "name": "Rute",
+      "short": "Rt",
+      "chapters": 4,
+      "desc": "Uma história de lealdade e recomeço: Rute, a moabita que entrou na linhagem do rei Davi."
+    },
+    "1sm": {
+      "name": "1 Samuel",
+      "short": "1Sm",
+      "chapters": 31,
+      "desc": "De Samuel, o último juiz, à unção de Saul e Davi como reis de Israel."
+    },
+    "2sm": {
+      "name": "2 Samuel",
+      "short": "2Sm",
+      "chapters": 24,
+      "desc": "O reinado de Davi: vitórias, quedas, arrependimento e a promessa de um trono eterno."
+    },
+    "1rs": {
+      "name": "1 Reis",
+      "short": "1Rs",
+      "chapters": 22,
+      "desc": "Do auge de Salomão à divisão do reino e o ministério de Elias."
+    },
+    "2rs": {
+      "name": "2 Reis",
+      "short": "2Rs",
+      "chapters": 25,
+      "desc": "A queda dos dois reinos e o exílio, com os milagres de Eliseu no caminho."
+    },
+    "1cr": {
+      "name": "1 Crônicas",
+      "short": "1Cr",
+      "chapters": 29,
+      "desc": "A história recontada a partir das genealogias, com foco no reinado de Davi e no templo."
+    },
+    "2cr": {
+      "name": "2 Crônicas",
+      "short": "2Cr",
+      "chapters": 36,
+      "desc": "De Salomão ao exílio: a glória do templo e as lições de um povo que se afastou de Deus."
+    },
+    "ed": {
+      "name": "Esdras",
+      "short": "Ed",
+      "chapters": 10,
+      "desc": "O retorno do exílio e a reconstrução do templo, com a restauração da adoração."
+    },
+    "ne": {
+      "name": "Neemias",
+      "short": "Ne",
+      "chapters": 13,
+      "desc": "A reconstrução dos muros de Jerusalém e o avivamento da Palavra entre o povo."
+    },
+    "et": {
+      "name": "Ester",
+      "short": "Et",
+      "chapters": 10,
+      "desc": "Uma jovem rainha usada por Deus para salvar seu povo da destruição."
+    },
+    "sl": {
+      "name": "Salmos",
+      "short": "Sl",
+      "chapters": 150,
+      "desc": "O cancioneiro de Israel: orações, louvores, lamentos e confiança em todas as estações da vida."
+    },
+    "pv": {
+      "name": "Provérbios",
+      "short": "Pv",
+      "chapters": 31,
+      "desc": "Sabedoria prática para viver bem: escolhas, palavras, trabalho e temor do Senhor."
+    },
+    "ec": {
+      "name": "Eclesiastes",
+      "short": "Ec",
+      "chapters": 12,
+      "desc": "A busca pelo sentido da vida, e a descoberta de que só Deus satisfaz."
+    },
+    "ct": {
+      "name": "Cantares",
+      "short": "Ct",
+      "chapters": 8,
+      "desc": "Um poema de amor entre o amado e a amada, celebrando a beleza do amor."
+    },
+    "is": {
+      "name": "Isaías",
+      "short": "Is",
+      "chapters": 66,
+      "desc": "O profeta do Santo de Israel: juízo, esperança e o anúncio do Servo sofredor."
+    },
+    "jr": {
+      "name": "Jeremias",
+      "short": "Jr",
+      "chapters": 52,
+      "desc": "O profeta das lágrimas, que anunciou o exílio e prometeu uma nova aliança."
+    },
+    "lm": {
+      "name": "Lamentações",
+      "short": "Lm",
+      "chapters": 5,
+      "desc": "O lamento por Jerusalém destruída — e a esperança que se renova a cada manhã."
+    },
+    "ez": {
+      "name": "Ezequiel",
+      "short": "Ez",
+      "chapters": 48,
+      "desc": "Visões, símbolos e a promessa de um coração novo para um povo no exílio."
+    },
+    "dn": {
+      "name": "Daniel",
+      "short": "Dn",
+      "chapters": 12,
+      "desc": "Fidelidade na Babilônia: sonhos, fornalha, cova dos leões e as visões do futuro."
+    },
+    "os": {
+      "name": "Oseias",
+      "short": "Os",
+      "chapters": 14,
+      "desc": "O amor incansável de Deus por um povo infiel, contado pela vida do profeta."
+    },
+    "jl": {
+      "name": "Joel",
+      "short": "Jl",
+      "chapters": 3,
+      "desc": "O dia do Senhor e a promessa do derramamento do Espírito."
+    },
+    "am": {
+      "name": "Amós",
+      "short": "Am",
+      "chapters": 9,
+      "desc": "O clamor por justiça e retidão no meio de um povo religioso de fachada."
+    },
+    "ob": {
+      "name": "Obadias",
+      "short": "Ob",
+      "chapters": 1,
+      "desc": "O juízo sobre Edom e a certeza de que o reino pertence ao Senhor."
+    },
+    "jn": {
+      "name": "Jonas",
+      "short": "Jn",
+      "chapters": 4,
+      "desc": "O profeta que fugiu de Deus e aprendeu que a misericórdia alcança até Nínive."
+    },
+    "mq": {
+      "name": "Miqueias",
+      "short": "Mq",
+      "chapters": 7,
+      "desc": "Juízo e esperança: a promessa do Rei que viria de Belém."
+    },
+    "na": {
+      "name": "Naum",
+      "short": "Na",
+      "chapters": 3,
+      "desc": "A queda de Nínive e o consolo para os oprimidos."
+    },
+    "hc": {
+      "name": "Habacuque",
+      "short": "Hc",
+      "chapters": 3,
+      "desc": "Das perguntas difíceis ao louvor: o justo viverá pela fé."
+    },
+    "sf": {
+      "name": "Sofonias",
+      "short": "Sf",
+      "chapters": 3,
+      "desc": "O dia do Senhor e a alegria de Deus pelo seu povo restaurado."
+    },
+    "ag": {
+      "name": "Ageu",
+      "short": "Ag",
+      "chapters": 2,
+      "desc": "O chamado para priorizar a casa de Deus e reconstruir o templo."
+    },
+    "zc": {
+      "name": "Zacarias",
+      "short": "Zc",
+      "chapters": 14,
+      "desc": "Visões de esperança e a vinda do Rei humilde montado em um jumentinho."
+    },
+    "ml": {
+      "name": "Malaquias",
+      "short": "Ml",
+      "chapters": 4,
+      "desc": "O último profeta: o amor de Deus, a fidelidade ao altar e o dia que virá."
+    },
+    "mt": {
+      "name": "Mateus",
+      "short": "Mt",
+      "chapters": 28,
+      "desc": "Jesus, o Rei prometido: o Sermão do Monte, os milagres e a Grande Comissão."
+    },
+    "mc": {
+      "name": "Marcos",
+      "short": "Mc",
+      "chapters": 16,
+      "desc": "Jesus em ação: o Filho de Deus que veio para servir e dar a vida."
+    },
+    "lc": {
+      "name": "Lucas",
+      "short": "Lc",
+      "chapters": 24,
+      "desc": "O relato cuidadoso da vida de Jesus, cheio de misericórdia para os excluídos."
+    },
+    "atos": {
+      "name": "Atos",
+      "short": "At",
+      "chapters": 28,
+      "desc": "A igreja nasce e o evangelho avança de Jerusalém até os confins da terra."
+    },
+    "rm": {
+      "name": "Romanos",
+      "short": "Rm",
+      "chapters": 16,
+      "desc": "O evangelho completo: justificação pela fé, graça e vida nova em Cristo."
+    },
+    "1co": {
+      "name": "1 Coríntios",
+      "short": "1Co",
+      "chapters": 16,
+      "desc": "Correção e amor para uma igreja cheia de dons, mas dividida por orgulho."
+    },
+    "2co": {
+      "name": "2 Coríntios",
+      "short": "2Co",
+      "chapters": 13,
+      "desc": "A defesa do ministério de Paulo, o consolo de Deus e a força na fraqueza."
+    },
+    "gl": {
+      "name": "Gálatas",
+      "short": "Gl",
+      "chapters": 6,
+      "desc": "A liberdade do evangelho contra qualquer tentativa de voltar à escravidão da lei."
+    },
+    "ef": {
+      "name": "Efésios",
+      "short": "Ef",
+      "chapters": 6,
+      "desc": "A igreja, o corpo de Cristo: graça, unidade e a armadura de Deus."
+    },
+    "fp": {
+      "name": "Filipenses",
+      "short": "Fp",
+      "chapters": 4,
+      "desc": "A carta da alegria: mesmo preso, Paulo aprendeu o segredo do contentamento."
+    },
+    "cl": {
+      "name": "Colossenses",
+      "short": "Cl",
+      "chapters": 4,
+      "desc": "Cristo é supremo: nele tudo foi criado e nele tudo é reconciliado."
+    },
+    "1ts": {
+      "name": "1 Tessalonicenses",
+      "short": "1Ts",
+      "chapters": 5,
+      "desc": "Fé firme e esperança viva enquanto se espera a volta de Cristo."
+    },
+    "2ts": {
+      "name": "2 Tessalonicenses",
+      "short": "2Ts",
+      "chapters": 3,
+      "desc": "Esclarecimentos sobre a volta de Cristo e o valor do trabalho fiel."
+    },
+    "1tm": {
+      "name": "1 Timóteo",
+      "short": "1Tm",
+      "chapters": 6,
+      "desc": "Conselhos a um jovem pastor sobre liderança, doutrina e piedade."
+    },
+    "2tm": {
+      "name": "2 Timóteo",
+      "short": "2Tm",
+      "chapters": 4,
+      "desc": "A última carta de Paulo: termine a corrida, guarde o tesouro, pregue a Palavra."
+    },
+    "tt": {
+      "name": "Tito",
+      "short": "Tt",
+      "chapters": 3,
+      "desc": "Ordem nas igrejas de Creta e a graça que ensina a viver bem."
+    },
+    "fm": {
+      "name": "Filemom",
+      "short": "Fm",
+      "chapters": 1,
+      "desc": "Uma carta pessoal sobre perdão: receba Onésimo como irmão."
+    },
+    "hb": {
+      "name": "Hebreus",
+      "short": "Hb",
+      "chapters": 13,
+      "desc": "Jesus é superior a tudo: o Sumo Sacerdote de uma aliança melhor."
+    },
+    "tg": {
+      "name": "Tiago",
+      "short": "Tg",
+      "chapters": 5,
+      "desc": "A fé que age: paciência nas provas, domínio da língua, obras de amor."
+    },
+    "1pe": {
+      "name": "1 Pedro",
+      "short": "1Pe",
+      "chapters": 5,
+      "desc": "Esperança para peregrinos: sofrer com Cristo e viver como povo de Deus."
+    },
+    "2pe": {
+      "name": "2 Pedro",
+      "short": "2Pe",
+      "chapters": 3,
+      "desc": "Crescer na graça e no conhecimento, firmes diante dos falsos mestres."
+    },
+    "1jo": {
+      "name": "1 João",
+      "short": "1Jo",
+      "chapters": 5,
+      "desc": "Deus é luz e Deus é amor: como ter certeza da vida eterna."
+    },
+    "2jo": {
+      "name": "2 João",
+      "short": "2Jo",
+      "chapters": 1,
+      "desc": "Ame em verdade e não receba quem nega a Cristo."
+    },
+    "3jo": {
+      "name": "3 João",
+      "short": "3Jo",
+      "chapters": 1,
+      "desc": "Uma nota pessoal sobre hospitalidade, liderança e imitação do bem."
+    },
+    "jd": {
+      "name": "Judas",
+      "short": "Jd",
+      "chapters": 1,
+      "desc": "Um alerta urgente: defenda a fé contra os que torcem a graça."
+    },
+    "ap": {
+      "name": "Apocalipse",
+      "short": "Ap",
+      "chapters": 22,
+      "desc": "A revelação de Jesus Cristo: o Cordeiro vence, e todas as coisas serão feitas novas."
+    },
+    "job": {
+      "name": "Jó",
+      "short": "Jó",
+      "chapters": 42,
+      "desc": "O sofrimento do justo, as perguntas sem resposta e o Deus que se revela na tempestade."
+    },
+    "jo": {
+      "name": "João",
+      "short": "Jo",
+      "chapters": 21,
+      "desc": "O evangelho dos sinais: para que você creia que Jesus é o Cristo, o Filho de Deus."
+    }
+  }
+}

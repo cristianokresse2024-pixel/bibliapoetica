@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Bíblia Poética — Leitura viva, fiel às Escrituras</title>
+  <meta name="description" content="Bíblia digital em linguagem moderna e de fácil leitura, fiel aos escritos originais. Leia, ganhe XP, suba de nível e mantenha sua ofensiva de leitura diária.">
+  <meta name="theme-color" content="#141a2e">
+  <link rel="icon" href="icons/favicon-32.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Barra superior -->
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a href="#/" class="brand" aria-label="Início">
+          <img src="icons/icon-192.png" alt="" class="brand-icon" width="34" height="34">
+          <span class="brand-name">Bíblia <em>Poética</em></span>
+        </a>
+        <div class="topbar-actions">
+          <div class="mini-xp" id="miniXp" title="Seu progresso" role="button" tabindex="0">
+            <span class="mini-xp-level" id="miniLevel">Nv 1</span>
+            <span class="mini-xp-bar"><span id="miniXpBar"></span></span>
+            <span class="mini-xp-points" id="miniXpPoints">0 XP</span>
+          </div>
+          <button class="icon-btn" id="themeToggle" aria-label="Alternar tema claro/escuro" title="Tema">☾</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Conteúdo -->
+    <main id="view" class="view" aria-live="polite"></main>
+
+    <!-- Navegação inferior -->
+    <nav class="tabbar" aria-label="Navegação principal">
+      <a href="#/" class="tab" data-tab="home"><span class="tab-ico">🏠</span><span>Início</span></a>
+      <a href="#/biblia" class="tab" data-tab="biblia"><span class="tab-ico">📖</span><span>Bíblia</span></a>
+      <a href="#/estatisticas" class="tab" data-tab="stats"><span class="tab-ico">🏆</span><span>Conquistas</span></a>
+    </nav>
+  </div>
+
+  <!-- Overlay de subida de nível -->
+  <div id="levelUp" class="levelup" hidden>
+    <div class="levelup-card">
+      <div class="levelup-spark">✨</div>
+      <div class="levelup-kicker">Você subiu de nível!</div>
+      <div class="levelup-level" id="luLevel">Nível 2</div>
+      <div class="levelup-title" id="luTitle">Peregrino</div>
+      <button class="btn btn-gold" id="luOk" onclick="document.getElementById('levelUp').hidden = true">Continuar 🙌</button>
+    </div>
+  </div>
+
+  <!-- Toast de XP -->
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+
+  <!-- Offline aviso -->
+  <div id="offlineBar" class="offline-bar" hidden>📡 Você está offline — o app continua funcionando com o conteúdo já baixado.</div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
