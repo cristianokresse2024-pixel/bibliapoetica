@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { loadBook, coverUrl, ART_COVERS } from '../lib/data.js';
+import { loadBook, coverUrl } from '../lib/data.js';
 import { bookGradientCss, themeFor } from '../lib/theme.js';
 import {
   useProgress, markChapterRead, isChapterRead, toggleFavorite, isFavorite,
@@ -17,11 +17,13 @@ export default function Reader({ index }) {
   const [verses, setVerses] = useState(null);
   const [loading, setLoading] = useState(true);
   const [openNote, setOpenNote] = useState(null);
+  const [hasArt, setHasArt] = useState(true);
   const topRef = useRef(null);
 
   const book = useMemo(() => index.books.find((b) => b.abbrev === abbrev), [index, abbrev]);
   const theme = book ? themeFor(book.category) : themeFor();
-  const hasArt = ART_COVERS.has(abbrev);
+
+  useEffect(() => { setHasArt(true); }, [abbrev]);
 
   useEffect(() => {
     let alive = true;
@@ -78,7 +80,7 @@ export default function Reader({ index }) {
     <div className="reader fade-in" ref={topRef}>
       {/* Cabeçalho ilustrado */}
       <div className="reader-head" style={{ background: bookGradientCss(book.category) }}>
-        {hasArt && <img className="art" src={coverUrl(abbrev)} alt="" />}
+        {hasArt && <img className="art" src={coverUrl(abbrev)} alt="" onError={() => setHasArt(false)} />}
         <div className="veil" />
         <div className="inner">
           <div className="crumbs"><Link to="/livros">Livros</Link> · {book.category} · {theme.emoji}</div>

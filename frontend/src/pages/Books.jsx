@@ -60,7 +60,7 @@ export default function Books({ index }) {
             <span className="muted" style={{ fontSize: 13 }}>{list.length} livros</span>
           </div>
           <div className="book-grid">
-            {list.map((b) => <BookCard key={b.abbrev} book={b} />)}
+            {list.map((b, i) => <BookCard key={b.abbrev} book={b} index={i} />)}
           </div>
         </section>
       ))}

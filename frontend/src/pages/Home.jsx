@@ -101,7 +101,7 @@ export default function Home({ index }) {
           <Link className="muted" to="/livros" style={{ marginLeft: 'auto', fontSize: 14 }}>ver todos →</Link>
         </div>
         <div className="book-grid">
-          {featured.map((b) => <BookCard key={b.abbrev} book={b} />)}
+          {featured.map((b, i) => <BookCard key={b.abbrev} book={b} index={i} />)}
         </div>
       </section>
     </div>

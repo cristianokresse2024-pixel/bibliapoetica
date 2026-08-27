@@ -23,11 +23,8 @@ export async function loadBook(version, abbrev) {
 }
 
 export function coverUrl(abbrev) {
-  return `${BASE}covers/${abbrev}.png`;
+  return `${BASE}covers/${abbrev}.jpg`;
 }
 export function heroUrl(name) {
-  return `${BASE}covers/${name}.png`;
+  return `${BASE}covers/${name}.jpg`;
 }
-
-// Capas com arte dedicada (as demais usam gradiente temático).
-export const ART_COVERS = new Set(['gn', 'ex', 'sl', 'pv', 'is', 'mt', 'jo', 'ap']);
