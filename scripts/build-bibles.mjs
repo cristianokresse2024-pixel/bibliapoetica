@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const SRC = 'assets_src';
-const OUT = 'public/bibles';
+const OUT = 'frontend/public/bibles';
 
 const VERSIONS = [
   { id: 'nvi', file: 'nvi.json', name: 'Nova Versão Internacional', short: 'NVI' },
