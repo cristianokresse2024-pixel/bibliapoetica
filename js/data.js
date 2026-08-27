@@ -19,7 +19,7 @@ export function orderedBooks(bible) {
     for (const group of bible.groups[testament]) {
       for (const id of group.books) {
         const b = bible.books[id];
-        out.push({ ...b, testament, group: group.name, groupId: group.id });
+        out.push({ id, ...b, testament, group: group.name, groupId: group.id });
       }
     }
   }

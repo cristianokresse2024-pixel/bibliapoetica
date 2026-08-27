@@ -1,5 +1,5 @@
 /* Bíblia Poética — Service Worker (cache offline) */
-const CACHE = "bibliapoetica-v1";
+const CACHE = "bibliapoetica-v2";
 const ASSETS = [
   "./",
   "./index.html",
@@ -35,7 +35,7 @@ self.addEventListener("fetch", (e) => {
   const url = new URL(e.request.url);
   if (e.request.method !== "GET" || url.origin !== location.origin) return;
 
-  // Conteúdo de livros: rede primeiro, cache como fallback
+  // Conteúdo de livros: rede primeiro, cache como fallback (sempre fresco + offline)
   if (url.pathname.includes("/data/books/")) {
     e.respondWith(
       fetch(e.request)
@@ -49,7 +49,7 @@ self.addEventListener("fetch", (e) => {
     return;
   }
 
-  // Navegação: fallback para index.html
+  // Navegação: rede primeiro, fallback para index.html
   if (e.request.mode === "navigate") {
     e.respondWith(
       fetch(e.request).catch(() => caches.match("./index.html"))
@@ -57,8 +57,20 @@ self.addEventListener("fetch", (e) => {
     return;
   }
 
-  // Demais: cache primeiro, rede como fallback
+  // Demais arquivos: entrega do cache na hora e atualiza em segundo plano
+  // (assim novas versões do app chegam no próximo carregamento)
   e.respondWith(
-    caches.match(e.request).then((cached) => cached || fetch(e.request))
+    caches.match(e.request).then((cached) => {
+      const network = fetch(e.request)
+        .then((res) => {
+          if (res && res.ok) {
+            const clone = res.clone();
+            caches.open(CACHE).then((c) => c.put(e.request, clone));
+          }
+          return res;
+        })
+        .catch(() => cached);
+      return cached || network;
+    })
   );
 });
