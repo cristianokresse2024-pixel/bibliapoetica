@@ -7,6 +7,12 @@ import {
   setNote, setLastRead, setVersion, setFontScale,
 } from '../lib/progress.js';
 import { useToast } from '../lib/toast.jsx';
+import { INTROS } from '../lib/intros.js';
+import BookIntro from '../components/BookIntro.jsx';
+
+const SEEN_KEY = 'biblia-poetica:intros-vistas';
+function getSeen() { try { return JSON.parse(localStorage.getItem(SEEN_KEY)) || {}; } catch { return {}; } }
+function markSeen(abbrev) { const s = getSeen(); s[abbrev] = true; try { localStorage.setItem(SEEN_KEY, JSON.stringify(s)); } catch {} }
 
 export default function Reader({ index }) {
   const { abbrev, chapter } = useParams();
@@ -18,12 +24,21 @@ export default function Reader({ index }) {
   const [loading, setLoading] = useState(true);
   const [openNote, setOpenNote] = useState(null);
   const [hasArt, setHasArt] = useState(true);
+  const [showIntro, setShowIntro] = useState(false);
   const topRef = useRef(null);
 
   const book = useMemo(() => index.books.find((b) => b.abbrev === abbrev), [index, abbrev]);
   const theme = book ? themeFor(book.category) : themeFor();
 
   useEffect(() => { setHasArt(true); }, [abbrev]);
+
+  // Abre a introdução automaticamente na primeira vez que se entra no cap. 1 de um livro
+  useEffect(() => {
+    if (book && ch === 1 && INTROS[abbrev] && !getSeen()[abbrev]) {
+      setShowIntro(true);
+      markSeen(abbrev);
+    }
+  }, [abbrev, ch, book]);
 
   useEffect(() => {
     let alive = true;
@@ -78,6 +93,13 @@ export default function Reader({ index }) {
 
   return (
     <div className="reader fade-in" ref={topRef}>
+      {showIntro && (
+        <BookIntro
+          book={book}
+          onClose={() => setShowIntro(false)}
+          onStart={() => setShowIntro(false)}
+        />
+      )}
       {/* Cabeçalho ilustrado */}
       <div className="reader-head" style={{ background: bookGradientCss(book.category) }}>
         {hasArt && <img className="art" src={coverUrl(abbrev)} alt="" onError={() => setHasArt(false)} />}
@@ -86,6 +108,9 @@ export default function Reader({ index }) {
           <div className="crumbs"><Link to="/livros">Livros</Link> · {book.category} · {theme.emoji}</div>
           <h1>{book.name}</h1>
           <div className="muted">Capítulo {ch} de {book.chapters}</div>
+          {INTROS[abbrev] && (
+            <button className="intro-btn" onClick={() => setShowIntro(true)}>ℹ️ Sobre este livro</button>
+          )}
         </div>
       </div>
 
