@@ -83,12 +83,15 @@ function localApiPlugin() {
   };
 }
 
+const isVercel = Boolean(process.env.VERCEL || process.env.NOW_BUILDER);
+const base = process.env.VITE_BASE_PATH || (isVercel ? '/' : '/bibliapoetica/');
+
 // Código-fonte fica em frontend/. O build é gerado na RAIZ do repositório,
 // que é onde o GitHub Pages desta branch está configurado para servir.
 export default defineConfig({
   root: 'frontend',
   plugins: [react(), localApiPlugin()],
-  base: '/bibliapoetica/',
+  base,
   build: {
     outDir: repoRoot,
     emptyOutDir: false, // NÃO apagar os arquivos-fonte da raiz

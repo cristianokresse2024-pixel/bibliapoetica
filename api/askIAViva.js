@@ -1,4 +1,4 @@
-﻿import { generateAnswer } from '../functions/ai/AIService.js';
+import { generateAnswer } from '../functions/ai/AIService.js';
 
 export default async function handler(req, res) {
   // CORS Headers
@@ -21,7 +21,13 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { question, history } = req.body || {};
+    let body = req.body;
+    if (typeof body === 'string') {
+      try {
+        body = JSON.parse(body);
+      } catch {}
+    }
+    const { question, history } = body || {};
     if (!question || typeof question !== 'string') {
       res.status(400).json({ error: 'Pergunta obrigatória.' });
       return;

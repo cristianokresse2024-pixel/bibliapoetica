@@ -1,3 +1,6 @@
 {
-  "version": 2
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/((?!api/|assets/|bibles/|covers/|audio/|knowledge/).*)", "destination": "/index.html" }
+  ]
 }
