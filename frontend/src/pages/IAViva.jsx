@@ -63,7 +63,7 @@ export default function IAViva() {
     }
   }
 
-  const canChat = configured && user;
+  const canChat = configured;
 
   return (
     <div className="fade-in">
@@ -113,7 +113,6 @@ export default function IAViva() {
 
           {error && <div className="note-box" style={{ borderColor: 'rgba(252,165,165,.4)' }}>⚠️ {error}</div>}
 
-          {/* Estados: configurado + logado → chat; configurado + sem login → login; não configurado → aviso */}
           {canChat ? (
             <div className="ia-composer">
               <input
@@ -121,22 +120,19 @@ export default function IAViva() {
                 placeholder="Digite sua pergunta sobre a Bíblia…"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') send(); }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') send();
+                }}
                 disabled={busy}
               />
-              <button className="btn" onClick={() => send()} disabled={busy || !input.trim()}>Enviar</button>
-            </div>
-          ) : configured ? (
-            <div className="ia-composer">
-              <button className="btn" onClick={() => signInWithGoogle().catch(() => setError('Não foi possível entrar. Tente novamente.'))}>
-                Entrar para conversar
+              <button className="btn" onClick={() => send()} disabled={busy || !input.trim()}>
+                Enviar
               </button>
             </div>
           ) : (
             <div className="note-box">
               🔒 <strong>Em preparação.</strong> A conversa com a IA será ativada assim que o backend
-              seguro estiver conectado — garantindo que a chave de API nunca fique exposta e que o uso
-              seja controlado com responsabilidade.
+              seguro estiver conectado.
             </div>
           )}
         </div>
