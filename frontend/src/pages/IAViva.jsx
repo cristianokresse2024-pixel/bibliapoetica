@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { BRAND } from '../config/brand.js';
 import { aiReady, askIAViva } from '../services/aiService.js';
 import { authReady, onAuth, signInWithGoogle } from '../services/authService.js';
+import MarkdownView from '../components/MarkdownView.jsx';
 
 // IA VIVA — assistente de estudo bíblico do ecossistema Viva Inteligente.
 // Fala com a Cloud Function segura (chave do provedor fica no backend).
@@ -90,7 +91,9 @@ export default function IAViva() {
             {messages.map((m, i) => (
               <div key={i} className={`ia-msg ${m.role === 'user' ? 'ia-user' : 'ia-bot'}`}>
                 {m.role === 'assistant' && <span className="ia-ava">✨</span>}
-                <div className="ia-bubble">{m.content}</div>
+                <div className={`ia-bubble ${m.role === 'assistant' ? 'ia-bubble-assistant' : ''}`}>
+                  {m.role === 'assistant' ? <MarkdownView content={m.content} /> : m.content}
+                </div>
               </div>
             ))}
             {busy && (
