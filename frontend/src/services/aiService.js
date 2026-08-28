@@ -1,9 +1,10 @@
-// Serviço de IA do frontend — fala com o backend seguro (Serverless ou Cloud Function `askIAViva`).
-// NUNCA contém chaves de API. A chave fica protegida no backend.
-import { isFirebaseConfigured } from '../config/firebase.js';
-import { getFunctionsClient } from './firebaseClient.js';
+// Serviço de IA do frontend — fala com o endpoint serverless seguro /api/askIAViva.
+// NUNCA contém chaves de API. A chave (GROQ_API_KEY) fica protegida no backend (Vercel).
 
-const PROD_API_URL = 'https://viva-inteligente.vercel.app/api/askIAViva';
+// Em produção (Vercel) e em dev (middleware do Vite), o endpoint vive na MESMA
+// origem, então usamos um caminho relativo. Dá para sobrescrever com VITE_AI_API_URL
+// caso um dia o backend fique em outro domínio.
+const API_URL = import.meta.env.VITE_AI_API_URL || '/api/askIAViva';
 
 export function aiReady() {
   return true;
@@ -13,38 +14,22 @@ export function aiReady() {
  * Envia uma pergunta para a IA Viva.
  * @param {string} question
  * @param {Array<{role:'user'|'assistant', content:string}>} history
- * @returns {Promise<{text:string, remaining?:number, premium?:boolean}>}
+ * @returns {Promise<{text:string, model?:string, provider?:string}>}
  */
 export async function askIAViva(question, history = []) {
-  const apiUrl =
-    import.meta.env.VITE_AI_API_URL ||
-    (typeof window !== 'undefined' && window.location.hostname.includes('localhost')
-      ? '/api/askIAViva'
-      : PROD_API_URL);
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ question, history }),
+  });
 
-  if (apiUrl) {
-    const res = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ question, history }),
-    });
-
-    if (!res.ok) {
-      const errData = await res.json().catch(() => ({}));
-      throw new Error(errData.error || 'Erro ao processar resposta da IA Viva.');
-    }
-
-    return await res.json();
+  if (!res.ok) {
+    let errData = {};
+    try { errData = await res.json(); } catch {}
+    const err = new Error(errData.error || 'Erro ao processar resposta da IA Viva.');
+    err.status = res.status;
+    throw err;
   }
 
-  if (!isFirebaseConfigured()) {
-    throw new Error('NOT_CONFIGURED');
-  }
-  const functions = await getFunctionsClient();
-  const { httpsCallable } = await import('firebase/functions');
-  const fn = httpsCallable(functions, 'askIAViva');
-  const res = await fn({ question, history });
-  return res.data;
+  return await res.json();
 }

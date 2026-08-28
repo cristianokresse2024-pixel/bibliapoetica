@@ -1,12 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { BRAND } from '../config/brand.js';
 import { aiReady, askIAViva } from '../services/aiService.js';
-import { authReady, onAuth, signInWithGoogle } from '../services/authService.js';
 import MarkdownView from '../components/MarkdownView.jsx';
 
 // IA VIVA — assistente de estudo bíblico do ecossistema Viva Inteligente.
-// Fala com a Cloud Function segura (chave do provedor fica no backend).
-// Degradação graciosa: sem backend configurado, mostra aviso e exemplos.
+// Fala com o endpoint serverless seguro /api/askIAViva (chave do Groq no backend).
 
 const EXAMPLES = [
   'Explique Romanos 8:28.',
@@ -18,19 +16,11 @@ const EXAMPLES = [
 
 export default function IAViva() {
   const configured = aiReady();
-  const [user, setUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const scrollRef = useRef(null);
-
-  useEffect(() => {
-    if (!authReady()) return;
-    let unsub = () => {};
-    onAuth((u) => setUser(u)).then((fn) => { if (fn) unsub = fn; });
-    return () => unsub();
-  }, []);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
@@ -48,12 +38,8 @@ export default function IAViva() {
       const res = await askIAViva(q, history);
       setMessages((m) => [...m, { role: 'assistant', content: res.text }]);
     } catch (e) {
-      if (e.message === 'NOT_CONFIGURED') {
-        setError('A IA Viva ainda está sendo configurada. Volte em breve! 🙏');
-      } else if (e.code === 'functions/unauthenticated') {
-        setError('Faça login para conversar com a IA Viva.');
-      } else if (e.code === 'functions/resource-exhausted') {
-        setError(e.message || 'Você atingiu o limite de uso de hoje.');
+      if (e.status === 429) {
+        setError(e.message || 'Muitas perguntas em pouco tempo. Aguarde um instante e tente de novo.');
       } else {
         setError('Não consegui responder agora. Tente novamente em instantes.');
       }
