@@ -1,10 +1,10 @@
-// Serviço de IA do frontend — fala com a Cloud Function `askIAViva`.
-// NUNCA contém chaves de API. A chamada é autenticada e a chave fica no backend.
+// Serviço de IA do frontend — fala com o backend seguro (Serverless ou Cloud Function `askIAViva`).
+// NUNCA contém chaves de API. A chave fica protegida no backend.
 import { isFirebaseConfigured } from '../config/firebase.js';
 import { getFunctionsClient } from './firebaseClient.js';
 
 export function aiReady() {
-  return isFirebaseConfigured();
+  return Boolean(import.meta.env.VITE_AI_API_URL || isFirebaseConfigured());
 }
 
 /**
@@ -14,6 +14,24 @@ export function aiReady() {
  * @returns {Promise<{text:string, remaining?:number, premium?:boolean}>}
  */
 export async function askIAViva(question, history = []) {
+  const apiUrl = import.meta.env.VITE_AI_API_URL;
+  if (apiUrl) {
+    const res = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ question, history }),
+    });
+
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error || 'Erro ao processar resposta da IA Viva.');
+    }
+
+    return await res.json();
+  }
+
   if (!isFirebaseConfigured()) {
     throw new Error('NOT_CONFIGURED');
   }

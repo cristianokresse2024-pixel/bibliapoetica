@@ -7,7 +7,7 @@
 // Provedor inicial: GROQ.  Configure por variáveis de ambiente / secrets:
 //   AI_PROVIDER   (default: "groq")
 //   GROQ_API_KEY  (SECRET — nunca no código nem no frontend)
-//   GROQ_MODEL    (default: "llama-3.3-70b-versatile")
+//   GROQ_MODEL    (default: "openai/gpt-oss-120b")
 // =============================================================================
 
 const SYSTEM_PROMPT = `Você é a "IA Viva", assistente de estudo bíblico do ecossistema cristão Viva Inteligente (Movimento Fé Inteligente).
@@ -93,7 +93,7 @@ export async function generateAnswer({ question, history = [], context = '' }) {
   if (provider === 'groq') {
     result = await callGroq({
       apiKey: process.env.GROQ_API_KEY,
-      model: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
+      model: process.env.GROQ_MODEL || 'openai/gpt-oss-120b',
       messages,
     });
   } else {

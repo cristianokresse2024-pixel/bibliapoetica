@@ -18,7 +18,7 @@ const db = getFirestore();
 // ---- Configuração (secrets e parâmetros ajustáveis sem editar código) ----
 const GROQ_API_KEY = defineSecret('GROQ_API_KEY');
 const AI_PROVIDER = defineString('AI_PROVIDER', { default: 'groq' });
-const GROQ_MODEL = defineString('GROQ_MODEL', { default: 'llama-3.3-70b-versatile' });
+const GROQ_MODEL = defineString('GROQ_MODEL', { default: 'openai/gpt-oss-120b' });
 const FREE_DAILY_AI_LIMIT = defineInt('FREE_DAILY_AI_LIMIT', { default: 10 });
 const PREMIUM_DAILY_AI_LIMIT = defineInt('PREMIUM_DAILY_AI_LIMIT', { default: 200 });
 
