@@ -1,0 +1,15 @@
+node_modules
+.DS_Store
+*.log
+.vite
+assets_src
+
+# Base de conhecimento (RAG) e áudio: versiona a estrutura/README,
+# mas NÃO os materiais pesados/licenciados (adicionados localmente/no backend).
+knowledge/**/*.pdf
+knowledge/**/*.docx
+knowledge/**/*.epub
+audio/**/*.mp3
+audio/**/*.ogg
+audio/**/*.wav
+audio/**/*.m4a

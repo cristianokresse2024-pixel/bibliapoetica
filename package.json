@@ -1,0 +1,22 @@
+{
+  "name": "viva-inteligente",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Viva Inteligente — ecossistema cristão digital de crescimento espiritual (Movimento Fé Inteligente)",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "data": "node scripts/build-bibles.mjs"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.2"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.4.8"
+  }
+}
