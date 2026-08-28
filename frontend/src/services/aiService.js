@@ -3,8 +3,10 @@
 import { isFirebaseConfigured } from '../config/firebase.js';
 import { getFunctionsClient } from './firebaseClient.js';
 
+const PROD_API_URL = 'https://viva-inteligente.vercel.app/api/askIAViva';
+
 export function aiReady() {
-  return Boolean(import.meta.env.VITE_AI_API_URL || isFirebaseConfigured());
+  return true;
 }
 
 /**
@@ -14,7 +16,12 @@ export function aiReady() {
  * @returns {Promise<{text:string, remaining?:number, premium?:boolean}>}
  */
 export async function askIAViva(question, history = []) {
-  const apiUrl = import.meta.env.VITE_AI_API_URL;
+  const apiUrl =
+    import.meta.env.VITE_AI_API_URL ||
+    (typeof window !== 'undefined' && window.location.hostname.includes('localhost')
+      ? '/api/askIAViva'
+      : PROD_API_URL);
+
   if (apiUrl) {
     const res = await fetch(apiUrl, {
       method: 'POST',

@@ -85,6 +85,7 @@ function localApiPlugin() {
 
 const isVercel = Boolean(process.env.VERCEL || process.env.NOW_BUILDER);
 const base = process.env.VITE_BASE_PATH || (isVercel ? '/' : '/bibliapoetica/');
+const outDir = isVercel ? path.resolve(repoRoot, 'dist') : repoRoot;
 
 // Código-fonte fica em frontend/. O build é gerado na RAIZ do repositório,
 // que é onde o GitHub Pages desta branch está configurado para servir.
@@ -93,8 +94,8 @@ export default defineConfig({
   plugins: [react(), localApiPlugin()],
   base,
   build: {
-    outDir: repoRoot,
-    emptyOutDir: false, // NÃO apagar os arquivos-fonte da raiz
+    outDir,
+    emptyOutDir: isVercel, // limpa dist se for vercel
     rollupOptions: {
       output: { manualChunks: undefined },
     },
