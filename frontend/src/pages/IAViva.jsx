@@ -53,79 +53,111 @@ export default function IAViva() {
   const canChat = configured;
 
   return (
-    <div className="fade-in">
-      <section className="section">
-        <h2 style={{ fontFamily: 'var(--serif)', fontSize: 28, margin: '18px 0 4px' }}>✨ IA Viva</h2>
-        <p className="sub">Sua companhia de estudo da Palavra — clara, respeitosa e cristã.</p>
-      </section>
+    <div className="fade-in ia-screen-wrap">
+      <div className="ia-header-bar">
+        <div>
+          <h1 className="ia-header-title">✨ IA Viva</h1>
+          <p className="ia-header-sub">Sua companhia de estudo bíblico profundo, exegese e vida com Deus.</p>
+        </div>
+        {messages.length > 0 && (
+          <button
+            className="btn ghost sm"
+            onClick={() => {
+              setMessages([]);
+              setError('');
+            }}
+            title="Iniciar nova conversa"
+          >
+            🧹 Nova conversa
+          </button>
+        )}
+      </div>
 
-      <section className="section">
-        <div className="secret-card" style={{ gap: 14 }}>
-          <p className="muted" style={{ margin: 0, fontSize: 13.5 }}>{BRAND.aiDisclaimer}</p>
-
-          <div className="ia-chat" ref={scrollRef}>
-            {messages.length === 0 && (
-              <div className="ia-msg ia-bot">
-                <span className="ia-ava">✨</span>
-                <div className="ia-bubble">
-                  Olá! Eu sou a <strong>IA Viva</strong>. Posso ajudar você a entender versículos,
-                  conhecer o contexto histórico, montar estudos e crescer na fé. Sempre que possível,
-                  mostro as referências bíblicas usadas. Por onde quer começar?
-                </div>
-              </div>
-            )}
-            {messages.map((m, i) => (
-              <div key={i} className={`ia-msg ${m.role === 'user' ? 'ia-user' : 'ia-bot'}`}>
-                {m.role === 'assistant' && <span className="ia-ava">✨</span>}
-                <div className={`ia-bubble ${m.role === 'assistant' ? 'ia-bubble-assistant' : ''}`}>
-                  {m.role === 'assistant' ? <MarkdownView content={m.content} /> : m.content}
-                </div>
-              </div>
-            ))}
-            {busy && (
-              <div className="ia-msg ia-bot">
-                <span className="ia-ava">✨</span>
-                <div className="ia-bubble ia-typing"><span></span><span></span><span></span></div>
-              </div>
-            )}
-          </div>
-
+      <div className="ia-chat-box">
+        <div className="ia-chat-messages" ref={scrollRef}>
           {messages.length === 0 && (
-            <div className="ia-examples">
-              {EXAMPLES.map((ex) => (
-                <button key={ex} className="ia-example" onClick={() => canChat && send(ex)} disabled={!canChat}>
-                  {ex}
-                </button>
-              ))}
+            <div className="ia-msg ia-bot">
+              <span className="ia-ava">✨</span>
+              <div className="ia-bubble ia-bubble-assistant">
+                <div className="md-rendered">
+                  <h3 className="md-h2" style={{ marginTop: 0 }}>
+                    Graça e Paz! Eu sou a <strong>IA Viva</strong>. 📖
+                  </h3>
+                  <p className="md-p">
+                    Estou pronta para ajudar você a <strong>mergulhar fundo na Palavra de Deus</strong>:
+                  </p>
+                  <ul className="md-ul">
+                    <li>Explicar o contexto histórico, cultural e geográfico dos textos.</li>
+                    <li>Revelar o significado dos termos no Grego Koiné e Hebraico bíblico.</li>
+                    <li>Montar estudos bíblicos estruturados e profundos do Gênesis ao Apocalipse.</li>
+                    <li>Extrair lições práticas e orações para o seu dia a dia.</li>
+                  </ul>
+                  <p className="md-p" style={{ marginBottom: 0, fontStyle: 'italic', color: '#fde68a' }}>
+                    Escolha uma pergunta abaixo ou digite seu versículo ou tema de interesse:
+                  </p>
+                </div>
+              </div>
             </div>
           )}
 
-          {error && <div className="note-box" style={{ borderColor: 'rgba(252,165,165,.4)' }}>⚠️ {error}</div>}
-
-          {canChat ? (
-            <div className="ia-composer">
-              <input
-                className="select"
-                placeholder="Digite sua pergunta sobre a Bíblia…"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') send();
-                }}
-                disabled={busy}
-              />
-              <button className="btn" onClick={() => send()} disabled={busy || !input.trim()}>
-                Enviar
-              </button>
+          {messages.map((m, i) => (
+            <div key={i} className={`ia-msg ${m.role === 'user' ? 'ia-user' : 'ia-bot'}`}>
+              {m.role === 'assistant' && <span className="ia-ava">✨</span>}
+              <div className={`ia-bubble ${m.role === 'assistant' ? 'ia-bubble-assistant' : ''}`}>
+                {m.role === 'assistant' ? <MarkdownView content={m.content} /> : m.content}
+              </div>
             </div>
-          ) : (
-            <div className="note-box">
-              🔒 <strong>Em preparação.</strong> A conversa com a IA será ativada assim que o backend
-              seguro estiver conectado.
+          ))}
+
+          {busy && (
+            <div className="ia-msg ia-bot">
+              <span className="ia-ava">✨</span>
+              <div className="ia-bubble ia-bubble-assistant ia-typing">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span style={{ fontSize: 13, color: '#fde68a', fontWeight: 600, marginLeft: 8 }}>
+                  Examinando as Escrituras e elaborando resposta...
+                </span>
+              </div>
             </div>
           )}
         </div>
-      </section>
+
+        {messages.length === 0 && (
+          <div className="ia-examples">
+            {EXAMPLES.map((ex) => (
+              <button key={ex} className="ia-example" onClick={() => canChat && send(ex)} disabled={!canChat || busy}>
+                🔍 {ex}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {error && <div className="note-box" style={{ borderColor: 'rgba(252,165,165,.4)', margin: 0 }}>⚠️ {error}</div>}
+
+        {canChat ? (
+          <div className="ia-composer-wrap">
+            <input
+              className="ia-input"
+              placeholder="Digite sua dúvida ou tema bíblico (ex: Explique Efésios 6:10-18)..."
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') send();
+              }}
+              disabled={busy}
+            />
+            <button className="btn ia-send-btn" onClick={() => send()} disabled={busy || !input.trim()}>
+              <span>Enviar</span> ➤
+            </button>
+          </div>
+        ) : (
+          <div className="note-box" style={{ margin: 0 }}>
+            🔒 <strong>Em preparação.</strong> A conversa com a IA será ativada em instantes.
+          </div>
+        )}
+      </div>
     </div>
   );
 }
