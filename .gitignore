@@ -9,7 +9,8 @@ assets_src
 .env.local
 frontend/.env
 frontend/.env.local
-functions/.env
+api/.env
+api/.env.local
 
 # Artefatos do Firebase
 .firebase/

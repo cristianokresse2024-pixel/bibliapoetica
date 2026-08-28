@@ -7,7 +7,7 @@ import fs from 'node:fs';
 const repoRoot = path.dirname(fileURLToPath(import.meta.url));
 
 // Carrega variáveis do functions/.env e .env.local para o dev server local
-for (const envPath of ['functions/.env', '.env.local', '.env']) {
+for (const envPath of ['api/.env', '.env.local', '.env']) {
   try {
     const fullPath = path.resolve(repoRoot, envPath);
     if (fs.existsSync(fullPath)) {
@@ -27,57 +27,39 @@ for (const envPath of ['functions/.env', '.env.local', '.env']) {
   } catch {}
 }
 
+// Em desenvolvimento, reusamos EXATAMENTE o mesmo handler serverless de produção
+// (api/askIAViva.js), com um pequeno adaptador que dá ao `res` do Node os métodos
+// .status()/.json() que o handler espera. Assim dev == produção (mesma validação
+// e mesma proteção anti-abuso), sem duplicar lógica.
 function localApiPlugin() {
   return {
     name: 'local-api-plugin',
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
-        if (req.url?.startsWith('/api/askIAViva')) {
-          if (req.method === 'OPTIONS') {
-            res.writeHead(200, {
-              'Access-Control-Allow-Origin': '*',
-              'Access-Control-Allow-Methods': 'POST,OPTIONS',
-              'Access-Control-Allow-Headers': 'Content-Type',
-            });
-            return res.end();
-          }
-          if (req.method === 'POST') {
-            let body = '';
-            req.on('data', (chunk) => {
-              body += chunk;
-            });
-            req.on('end', async () => {
-              try {
-                const data = JSON.parse(body || '{}');
-                const { generateAnswer } = await import('./functions/ai/AIService.js');
-                const answer = await generateAnswer({
-                  question: data.question,
-                  history: data.history || [],
-                });
-                res.writeHead(200, {
-                  'Content-Type': 'application/json',
-                  'Access-Control-Allow-Origin': '*',
-                });
-                res.end(
-                  JSON.stringify({
-                    text: answer.text,
-                    model: answer.model,
-                    provider: answer.provider,
-                    latencyMs: answer.latencyMs,
-                  })
-                );
-              } catch (err) {
-                res.writeHead(500, {
-                  'Content-Type': 'application/json',
-                  'Access-Control-Allow-Origin': '*',
-                });
-                res.end(JSON.stringify({ error: err.message }));
-              }
-            });
-            return;
-          }
+        if (!req.url?.startsWith('/api/askIAViva')) return next();
+
+        // adaptador estilo Express/Vercel
+        res.status = (code) => { res.statusCode = code; return res; };
+        res.json = (obj) => {
+          if (!res.getHeader('Content-Type')) res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify(obj));
+          return res;
+        };
+
+        // coletar corpo JSON
+        let body = '';
+        req.on('data', (c) => { body += c; });
+        await new Promise((r) => req.on('end', r));
+        try { req.body = body ? JSON.parse(body) : {}; } catch { req.body = {}; }
+
+        try {
+          const { default: handler } = await import('./api/askIAViva.js');
+          await handler(req, res);
+        } catch (err) {
+          res.statusCode = 500;
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ error: 'A IA Viva está indisponível no momento.' }));
         }
-        next();
       });
     },
   };

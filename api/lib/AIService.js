@@ -4,9 +4,9 @@
 // A aplicação NUNCA fala direto com o provedor: fala com o AIService. Assim o
 // modelo/provedor pode ser trocado (Groq, Gemini, etc.) sem reescrever o app.
 //
-// Provedor inicial: GROQ.  Configure por variáveis de ambiente / secrets:
+// Provedor inicial: GROQ. Configure por variáveis de ambiente (Vercel/.env):
 //   AI_PROVIDER   (default: "groq")
-//   GROQ_API_KEY  (SECRET — nunca no código nem no frontend)
+//   GROQ_API_KEY  (SEGREDO — só no backend, nunca no código nem no frontend)
 //   GROQ_MODEL    (default: "openai/gpt-oss-120b")
 // =============================================================================
 

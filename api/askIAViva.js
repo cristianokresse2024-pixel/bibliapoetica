@@ -1,66 +1,50 @@
-import { generateAnswer } from '../functions/ai/AIService.js';
+import { generateAnswer } from './lib/AIService.js';
 
-// In-memory rate limiting counters (per serverless instance)
-const ipRequestHistory = new Map();
-let dailyGlobalCount = 0;
-let lastResetDay = new Date().getUTCDate();
+// =============================================================================
+// Endpoint serverless da IA Viva (Vercel) — chave do Groq protegida no backend.
+// -----------------------------------------------------------------------------
+// A IA fica aberta (sem login) por decisão de produto. Para NÃO deixar a cota do
+// Groq exposta a abuso, aplicamos duas proteções em memória:
+//   1) Rate limit por IP (RL_PER_IP requisições por RL_WINDOW_MS)
+//   2) Teto global diário (DAILY_GLOBAL_LIMIT requisições/dia no total)
+// =============================================================================
 
-function checkRateLimits(req) {
-  const now = Date.now();
-  const currentDay = new Date().getUTCDate();
+const RL_WINDOW_MS = 60 * 1000; // janela de 1 minuto
+const RL_PER_IP = Number(process.env.RL_PER_IP || 8); // por IP / minuto
+const DAILY_GLOBAL_LIMIT = Number(process.env.DAILY_GLOBAL_LIMIT || 2000); // total/dia
 
-  // Reset daily global count on new UTC day
-  if (currentDay !== lastResetDay) {
-    dailyGlobalCount = 0;
-    lastResetDay = currentDay;
-  }
+// Estado em memória (por instância da função)
+const ipHits = new Map(); // ip -> { count, resetAt }
+let globalDay = todayKey();
+let globalCount = 0;
 
-  // 1. Global Daily Limit
-  const maxGlobal = parseInt(process.env.DAILY_GLOBAL_LIMIT || '2000', 10);
-  if (dailyGlobalCount >= maxGlobal) {
-    return { limited: true, reason: 'Limite diário global atingido. Tente novamente mais tarde.' };
-  }
-
-  // 2. IP Rate Limit (Sliding 60s window)
-  const maxPerIp = parseInt(process.env.RL_PER_IP || '8', 10);
-  const ip =
-    req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
-    req.headers['x-real-ip'] ||
-    req.socket?.remoteAddress ||
-    '127.0.0.1';
-
-  const windowMs = 60 * 1000; // 1 minuto
-  const history = ipRequestHistory.get(ip) || [];
-  const recentHistory = history.filter((timestamp) => now - timestamp < windowMs);
-
-  if (recentHistory.length >= maxPerIp) {
-    return { limited: true, reason: 'Você atingiu o limite de requisições por minuto. Aguarde um instante.' };
-  }
-
-  recentHistory.push(now);
-  ipRequestHistory.set(ip, recentHistory);
-  dailyGlobalCount++;
-
-  return { limited: false };
+function todayKey() {
+  return new Date().toISOString().slice(0, 10);
 }
 
-export default async function handler(req, res) {
-  // CORS & Allowed Origins
-  const allowedOriginsEnv = process.env.ALLOWED_ORIGINS;
-  const requestOrigin = req.headers.origin;
+function getIp(req) {
+  const xff = req.headers['x-forwarded-for'];
+  if (typeof xff === 'string' && xff.length) return xff.split(',')[0].trim();
+  return req.socket?.remoteAddress || '127.0.0.1';
+}
 
-  let allowOrigin = '*';
-  if (allowedOriginsEnv) {
-    const allowedList = allowedOriginsEnv.split(',').map((o) => o.trim());
-    if (requestOrigin && (allowedList.includes(requestOrigin) || allowedList.includes('*'))) {
-      allowOrigin = requestOrigin;
-    } else if (allowedList.length === 1 && allowedList[0] !== '*') {
-      allowOrigin = allowedList[0];
-    }
-  }
+const ALLOWED_ORIGINS = (
+  process.env.ALLOWED_ORIGINS || 'https://viva-inteligente.vercel.app'
+)
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
+
+export default async function handler(req, res) {
+  const origin = req.headers.origin;
+  const allowOrigin =
+    origin && (ALLOWED_ORIGINS.includes(origin) || ALLOWED_ORIGINS.includes('*'))
+      ? origin
+      : ALLOWED_ORIGINS[0] || '*';
 
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', allowOrigin);
+  res.setHeader('Vary', 'Origin');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
   res.setHeader(
     'Access-Control-Allow-Headers',
@@ -77,11 +61,36 @@ export default async function handler(req, res) {
     return;
   }
 
-  // Rate Limiting Check
-  const rateLimitResult = checkRateLimits(req);
-  if (rateLimitResult.limited) {
-    res.status(429).json({ error: rateLimitResult.reason });
+  // ---- Proteção 1: teto global diário ----
+  const day = todayKey();
+  if (day !== globalDay) {
+    globalDay = day;
+    globalCount = 0;
+  }
+  if (globalCount >= DAILY_GLOBAL_LIMIT) {
+    res.status(429).json({ error: 'A IA Viva atingiu o limite de uso de hoje. Tente novamente mais tarde.' });
     return;
+  }
+
+  // ---- Proteção 2: rate limit por IP ----
+  const ip = getIp(req);
+  const now = Date.now();
+  const entry = ipHits.get(ip);
+  if (!entry || now > entry.resetAt) {
+    ipHits.set(ip, { count: 1, resetAt: now + RL_WINDOW_MS });
+  } else {
+    entry.count += 1;
+    if (entry.count > RL_PER_IP) {
+      const wait = Math.ceil((entry.resetAt - now) / 1000);
+      res.setHeader('Retry-After', String(wait));
+      res.status(429).json({ error: `Muitas perguntas em pouco tempo. Aguarde ${wait}s e tente de novo.` });
+      return;
+    }
+  }
+
+  // Limpeza ocasional do mapa
+  if (ipHits.size > 5000) {
+    for (const [k, v] of ipHits) if (now > v.resetAt) ipHits.delete(k);
   }
 
   try {
@@ -92,18 +101,20 @@ export default async function handler(req, res) {
       } catch {}
     }
     const { question, history } = body || {};
+
     if (!question || typeof question !== 'string') {
       res.status(400).json({ error: 'Pergunta obrigatória.' });
       return;
     }
-
     if (question.length > 2000) {
       res.status(400).json({ error: 'Pergunta muito longa (máximo 2000 caracteres).' });
       return;
     }
 
-    const answer = await generateAnswer({ question, history: history || [] });
+    const safeHistory = Array.isArray(history) ? history.slice(-8) : [];
+    const answer = await generateAnswer({ question, history: safeHistory });
 
+    globalCount += 1;
     res.status(200).json({
       text: answer.text,
       model: answer.model,
