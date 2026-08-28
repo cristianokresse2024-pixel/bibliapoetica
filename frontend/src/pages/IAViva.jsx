@@ -1,8 +1,11 @@
+import { useEffect, useRef, useState } from 'react';
 import { BRAND } from '../config/brand.js';
+import { aiReady, askIAViva } from '../services/aiService.js';
+import { authReady, onAuth, signInWithGoogle } from '../services/authService.js';
 
-// IA VIVA — a inteligência artificial do ecossistema Viva Inteligente.
-// FASE 1: tela de apresentação. A conversa real será ligada quando o backend
-// (Cloud Function + AIService + Gemini) estiver disponível — sem expor a chave.
+// IA VIVA — assistente de estudo bíblico do ecossistema Viva Inteligente.
+// Fala com a Cloud Function segura (chave do provedor fica no backend).
+// Degradação graciosa: sem backend configurado, mostra aviso e exemplos.
 
 const EXAMPLES = [
   'Explique Romanos 8:28.',
@@ -10,10 +13,58 @@ const EXAMPLES = [
   'Qual o contexto histórico de João 15?',
   'Quero estudar sobre oração.',
   'Monte um estudo bíblico sobre fé.',
-  'Explique esse versículo de maneira simples.',
 ];
 
 export default function IAViva() {
+  const configured = aiReady();
+  const [user, setUser] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const scrollRef = useRef(null);
+
+  useEffect(() => {
+    if (!authReady()) return;
+    let unsub = () => {};
+    onAuth((u) => setUser(u)).then((fn) => { if (fn) unsub = fn; });
+    return () => unsub();
+  }, []);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
+  }, [messages, busy]);
+
+  async function send(text) {
+    const q = (text ?? input).trim();
+    if (!q || busy) return;
+    setError('');
+    setInput('');
+    const history = messages.map((m) => ({ role: m.role, content: m.content }));
+    setMessages((m) => [...m, { role: 'user', content: q }]);
+    setBusy(true);
+    try {
+      const res = await askIAViva(q, history);
+      setMessages((m) => [...m, { role: 'assistant', content: res.text }]);
+    } catch (e) {
+      if (e.message === 'NOT_CONFIGURED') {
+        setError('A IA Viva ainda está sendo configurada. Volte em breve! 🙏');
+      } else if (e.code === 'functions/unauthenticated') {
+        setError('Faça login para conversar com a IA Viva.');
+      } else if (e.code === 'functions/resource-exhausted') {
+        setError(e.message || 'Você atingiu o limite de uso de hoje.');
+      } else {
+        setError('Não consegui responder agora. Tente novamente em instantes.');
+      }
+      setMessages((m) => m.slice(0, -1)); // remove a pergunta que falhou
+      setInput(q);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const canChat = configured && user;
+
   return (
     <div className="fade-in">
       <section className="section">
@@ -23,41 +74,71 @@ export default function IAViva() {
 
       <section className="section">
         <div className="secret-card" style={{ gap: 14 }}>
-          <p className="muted" style={{ margin: 0 }}>{BRAND.aiDisclaimer}</p>
+          <p className="muted" style={{ margin: 0, fontSize: 13.5 }}>{BRAND.aiDisclaimer}</p>
 
-          <div className="ia-chat-preview">
-            <div className="ia-msg ia-bot">
-              <span className="ia-ava">✨</span>
-              <div className="ia-bubble">
-                Olá! Eu sou a <strong>IA Viva</strong>. Posso ajudar você a entender versículos,
-                conhecer o contexto histórico, montar estudos e crescer na fé.
-                Sempre que possível, mostro as referências bíblicas usadas e incentivo você a
-                buscar a Palavra por conta própria. Por onde quer começar?
+          <div className="ia-chat" ref={scrollRef}>
+            {messages.length === 0 && (
+              <div className="ia-msg ia-bot">
+                <span className="ia-ava">✨</span>
+                <div className="ia-bubble">
+                  Olá! Eu sou a <strong>IA Viva</strong>. Posso ajudar você a entender versículos,
+                  conhecer o contexto histórico, montar estudos e crescer na fé. Sempre que possível,
+                  mostro as referências bíblicas usadas. Por onde quer começar?
+                </div>
               </div>
-            </div>
+            )}
+            {messages.map((m, i) => (
+              <div key={i} className={`ia-msg ${m.role === 'user' ? 'ia-user' : 'ia-bot'}`}>
+                {m.role === 'assistant' && <span className="ia-ava">✨</span>}
+                <div className="ia-bubble">{m.content}</div>
+              </div>
+            ))}
+            {busy && (
+              <div className="ia-msg ia-bot">
+                <span className="ia-ava">✨</span>
+                <div className="ia-bubble ia-typing"><span></span><span></span><span></span></div>
+              </div>
+            )}
           </div>
 
-          <div>
-            <div className="muted" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
-              Experimente perguntar
-            </div>
+          {messages.length === 0 && (
             <div className="ia-examples">
               {EXAMPLES.map((ex) => (
-                <span key={ex} className="ia-example">{ex}</span>
+                <button key={ex} className="ia-example" onClick={() => canChat && send(ex)} disabled={!canChat}>
+                  {ex}
+                </button>
               ))}
             </div>
-          </div>
+          )}
 
-          <div className="ia-composer" aria-hidden="true">
-            <input className="select" placeholder="Digite sua pergunta sobre a Bíblia…" disabled />
-            <button className="btn" disabled>Enviar</button>
-          </div>
+          {error && <div className="note-box" style={{ borderColor: 'rgba(252,165,165,.4)' }}>⚠️ {error}</div>}
 
-          <div className="note-box">
-            🔒 <strong>Em preparação.</strong> A conversa com a IA será ativada assim que a
-            infraestrutura segura (chave protegida no servidor) estiver conectada. Assim garantimos
-            que sua chave de API nunca fique exposta e que o uso seja controlado com responsabilidade.
-          </div>
+          {/* Estados: configurado + logado → chat; configurado + sem login → login; não configurado → aviso */}
+          {canChat ? (
+            <div className="ia-composer">
+              <input
+                className="select"
+                placeholder="Digite sua pergunta sobre a Bíblia…"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') send(); }}
+                disabled={busy}
+              />
+              <button className="btn" onClick={() => send()} disabled={busy || !input.trim()}>Enviar</button>
+            </div>
+          ) : configured ? (
+            <div className="ia-composer">
+              <button className="btn" onClick={() => signInWithGoogle().catch(() => setError('Não foi possível entrar. Tente novamente.'))}>
+                Entrar para conversar
+              </button>
+            </div>
+          ) : (
+            <div className="note-box">
+              🔒 <strong>Em preparação.</strong> A conversa com a IA será ativada assim que o backend
+              seguro estiver conectado — garantindo que a chave de API nunca fique exposta e que o uso
+              seja controlado com responsabilidade.
+            </div>
+          )}
         </div>
       </section>
     </div>

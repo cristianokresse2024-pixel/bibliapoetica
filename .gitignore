@@ -4,6 +4,17 @@ node_modules
 .vite
 assets_src
 
+# Variáveis de ambiente locais (NUNCA commitar segredos/config sensível)
+.env
+.env.local
+frontend/.env
+frontend/.env.local
+functions/.env
+
+# Artefatos do Firebase
+.firebase/
+firebase-debug.log
+
 # Base de conhecimento (RAG) e áudio: versiona a estrutura/README,
 # mas NÃO os materiais pesados/licenciados (adicionados localmente/no backend).
 knowledge/**/*.pdf
