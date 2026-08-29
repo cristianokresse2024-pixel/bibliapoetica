@@ -1,16 +1,12 @@
-﻿import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useProgress, recordPrayer, setPrayerGoal, setPrayerReminder } from '../lib/progress.js';
 import { useToast } from '../lib/toast.jsx';
 import { beep, fmtHMS, ensureNotifyPermission, notify } from '../lib/notify.js';
+import lugarSecretoAudio from '../assets/audio/lugar-secreto.mp3';
 
 const PRESETS = [5, 10, 15, 20, 30, 45, 60];
 
-const AUDIO_SOURCES = [
-  './audio/lugar-secreto.mp3',
-  '/audio/lugar-secreto.mp3',
-  './lugar-secreto.mp3',
-  '/lugar-secreto.mp3'
-];
+const AUDIO_SRC = lugarSecretoAudio || './audio/lugar-secreto.mp3';
 
 export default function Prayer() {
   const state = useProgress();
@@ -168,13 +164,13 @@ export default function Prayer() {
       {/* Elemento de Áudio Nativo HTML5 */}
       <audio
         ref={audioRef}
-        src={AUDIO_SOURCES[sourceIndex]}
+        src={AUDIO_SRC}
         loop
         preload="auto"
         onPlay={() => { setIsPlaying(true); setAudioStatusText('Tocando'); }}
         onPause={() => { setIsPlaying(false); setAudioStatusText('Em Pausa'); }}
         onPlaying={() => { setIsPlaying(true); setAudioStatusText('Tocando'); }}
-        onError={handleAudioError}
+        onError={() => setAudioStatusText('Arquivo de áudio indisponível')}
       />
 
       <section className="section">
