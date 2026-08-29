@@ -16,6 +16,7 @@ import IAViva from './pages/IAViva.jsx';
 import Studies from './pages/Studies.jsx';
 import Community from './pages/Community.jsx';
 import Profile from './pages/Profile.jsx';
+import Devotional from './pages/Devotional.jsx';
 import AmbassadorDashboard from './pages/AmbassadorDashboard.jsx';
 import FastMonitor from './components/FastMonitor.jsx';
 import { captureReferralFromUrl } from './lib/ambassadorEngine.js';
@@ -46,6 +47,7 @@ export default function App() {
         <Routes>
           {/* ---- ÁREAS 100% LIBERADAS PARA TODO MUNDO (PÚBLICO/FREE) ---- */}
           <Route path="/" element={<Home index={index} />} />
+          <Route path="/devocional" element={<Devotional />} />
           <Route path="/livros" element={<Books index={index} />} />
           <Route path="/ler/:abbrev/:chapter" element={<Reader index={index} />} />
           <Route path="/oracao" element={<Prayer />} />

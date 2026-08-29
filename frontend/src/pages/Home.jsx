@@ -87,6 +87,12 @@ export default function Home({ index }) {
       <section className="section">
         <div className="sec-head"><h2>Vida espiritual</h2></div>
         <div className="shortcut-grid">
+          <Link to="/devocional" className="shortcut sc-devotional" style={{ border: '1px solid rgba(251,191,36,0.3)', background: 'linear-gradient(135deg, rgba(251,191,36,0.08) 0%, rgba(20,15,35,0.6) 100%)' }}>
+            <span className="sc-ic">🎙️</span>
+            <span className="sc-title" style={{ color: '#fde68a' }}>Devocional Diário</span>
+            <span className="sc-desc">Ouça a palavra de hoje em áudio</span>
+            <span className="sc-badge gold-badge" style={{ fontSize: 11 }}>🌟 Áudio do Dia</span>
+          </Link>
           <Link to="/oracao" className="shortcut sc-prayer">
             <span className="sc-ic">🕊️</span>
             <span className="sc-title">Lugar Secreto</span>

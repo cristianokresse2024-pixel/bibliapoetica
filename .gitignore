@@ -24,4 +24,7 @@ knowledge/**/*.epub
 !audio/lugar-secreto.mp3
 !frontend/public/audio/lugar-secreto.mp3
 !dist/audio/lugar-secreto.mp3
+!audio/devocionais/**
+!frontend/public/audio/devocionais/**
+!dist/audio/devocionais/**
 .vercel
