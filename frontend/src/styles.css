@@ -169,11 +169,32 @@ button { font-family: inherit; cursor: pointer; }
 .verse { padding: 4px 8px; border-radius: 10px; transition: background .15s; position: relative; }
 .verse:hover { background: rgba(255,255,255,.04); }
 .verse .num { color: var(--gold); font-size: .62em; font-weight: 800; font-family: var(--sans); vertical-align: super; margin-right: 6px; user-select: none; }
-.verse.fav { background: rgba(251,191,36,.08); }
 .verse .vtools { display: inline-flex; gap: 6px; margin-left: 8px; opacity: 0; transition: opacity .15s; vertical-align: middle; }
 .verse:hover .vtools, .verse.fav .vtools { opacity: 1; }
-.vtool { border: none; background: var(--panel-2); color: var(--muted); width: 26px; height: 26px; border-radius: 8px; font-size: 13px; display: inline-grid; place-items: center; }
+.vtool { border: none; background: var(--panel-2); color: var(--muted); width: 26px; height: 26px; border-radius: 8px; font-size: 13px; display: inline-grid; place-items: center; cursor: pointer; transition: .15s; }
+.vtool:hover { background: rgba(255,255,255,.15); color: #fff; }
 .vtool.on { color: var(--gold); }
+.vtool.ia-tool {
+  background: linear-gradient(135deg, rgba(251,191,36,.22), rgba(167,139,250,.18));
+  color: #fde68a;
+  border: 1px solid rgba(251,191,36,.4);
+  font-size: 11px;
+  font-weight: 700;
+  width: auto;
+  min-width: 28px;
+  height: 26px;
+  padding: 0 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  border-radius: 8px;
+}
+.vtool.ia-tool:hover {
+  background: linear-gradient(135deg, rgba(251,191,36,.42), rgba(167,139,250,.3));
+  border-color: rgba(251,191,36,.7);
+  color: #fff;
+  transform: translateY(-1px);
+}
 
 .reader-foot { display: flex; justify-content: space-between; gap: 10px; margin: 26px 0; }
 
@@ -321,6 +342,117 @@ button { font-family: inherit; cursor: pointer; }
 
 @media (max-width: 560px) {
   .fact-grid { grid-template-columns: 1fr; }
+}
+
+/* ---------- Modal de Explicação de Versículo pela IA Viva ---------- */
+.verse-ai-modal {
+  width: min(720px, 100%);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #180f33, #0d081f);
+  border: 1px solid rgba(251,191,36,.35);
+  border-radius: 24px;
+  box-shadow: 0 24px 80px rgba(0,0,0,.8), 0 0 40px rgba(251,191,36,.12);
+  animation: modalIn .35s cubic-bezier(.2,.8,.2,1);
+  overflow: hidden;
+}
+
+.verse-ai-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px 14px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.verse-ai-head-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.verse-ai-title {
+  font-family: var(--serif);
+  font-size: 22px;
+  color: #ffffff;
+  margin: 0;
+}
+
+.verse-ai-quote {
+  background: linear-gradient(145deg, rgba(251,191,36,.12), rgba(167,139,250,.07));
+  border-left: 4px solid var(--gold);
+  padding: 14px 20px;
+  margin: 14px 20px 0;
+  border-radius: 12px;
+}
+.verse-ai-quote-text {
+  font-family: var(--serif);
+  font-size: 16px;
+  font-style: italic;
+  color: #ffffff;
+  line-height: 1.6;
+  margin: 0 0 6px;
+}
+.verse-ai-quote-ref {
+  font-size: 12px;
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.verse-ai-body {
+  padding: 16px 20px;
+  overflow-y: auto;
+  flex: 1;
+  -webkit-overflow-scrolling: touch;
+}
+
+.verse-ai-loading {
+  text-align: center;
+  padding: 30px 14px;
+}
+
+.verse-ai-footer {
+  display: flex;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid rgba(255,255,255,.08);
+  background: rgba(11,7,22,.6);
+  backdrop-filter: blur(8px);
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .verse .vtools {
+    opacity: 0.85; /* Visível no celular para fácil acesso à IA */
+  }
+  .verse-ai-modal {
+    max-height: 94vh;
+    border-radius: 18px;
+  }
+  .verse-ai-head {
+    padding: 14px 16px 10px;
+  }
+  .verse-ai-title {
+    font-size: 19px;
+  }
+  .verse-ai-quote {
+    margin: 10px 14px 0;
+    padding: 12px 14px;
+  }
+  .verse-ai-quote-text {
+    font-size: 14.5px;
+  }
+  .verse-ai-body {
+    padding: 12px 14px;
+  }
+  .verse-ai-footer {
+    padding: 10px 14px;
+    justify-content: stretch;
+  }
+  .verse-ai-footer .btn {
+    flex: 1;
+    justify-content: center;
+  }
 }
 
 .fav-card { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 16px; }

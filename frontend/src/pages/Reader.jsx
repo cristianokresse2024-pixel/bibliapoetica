@@ -9,6 +9,7 @@ import {
 import { useToast } from '../lib/toast.jsx';
 import { INTROS } from '../lib/intros.js';
 import BookIntro from '../components/BookIntro.jsx';
+import VerseAIModal from '../components/VerseAIModal.jsx';
 
 const SEEN_KEY = 'biblia-poetica:intros-vistas';
 function getSeen() { try { return JSON.parse(localStorage.getItem(SEEN_KEY)) || {}; } catch { return {}; } }
@@ -25,6 +26,7 @@ export default function Reader({ index }) {
   const [openNote, setOpenNote] = useState(null);
   const [hasArt, setHasArt] = useState(true);
   const [showIntro, setShowIntro] = useState(false);
+  const [aiVerse, setAiVerse] = useState(null);
   const topRef = useRef(null);
 
   const book = useMemo(() => index.books.find((b) => b.abbrev === abbrev), [index, abbrev]);
@@ -152,6 +154,13 @@ export default function Reader({ index }) {
                 <span className="num">{i + 1}</span>
                 {text}
                 <span className="vtools">
+                  <button
+                    className="vtool ia-tool"
+                    title="Explicar este versículo com a IA Viva"
+                    onClick={() => setAiVerse({ verseNum: i + 1, text })}
+                  >
+                    ✨ Explicar
+                  </button>
                   <button className={`vtool ${favd ? 'on' : ''}`} title="Favoritar" onClick={() => fav(i)}>{favd ? '★' : '☆'}</button>
                   <button className="vtool" title="Anotar" onClick={() => setOpenNote(openNote === i ? null : i)}>✎</button>
                   <button className="vtool" title="Compartilhar" onClick={() => share(i)}>↗</button>
@@ -168,6 +177,18 @@ export default function Reader({ index }) {
             );
           })}
         </div>
+      )}
+
+      {/* Modal de Explicação da IA Viva no Versículo */}
+      {aiVerse && (
+        <VerseAIModal
+          book={book}
+          chapter={ch}
+          verseNum={aiVerse.verseNum}
+          verseText={aiVerse.text}
+          version={state.version}
+          onClose={() => setAiVerse(null)}
+        />
       )}
 
       {/* Rodapé de navegação */}
