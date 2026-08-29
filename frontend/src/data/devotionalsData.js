@@ -7,21 +7,24 @@
 
 export const DEVOTIONALS = [
   {
-    id: 'devocional-hoje',
-    title: 'O Poder da Fé e a Renovação da Mente',
-    verse: '“Não vos conformeis com este século, mas transformai-vos pela renovação da vossa mente, para que experimenteis qual seja a boa, agradável e perfeita vontade de Deus.”',
-    verseRef: 'Romanos 12:2',
+    id: 'dia-25-fogo',
+    title: 'PERMANEÇA ATÉ QUE O FOGO VENHA',
+    tag: '🔥 DIA 25 DE 50 | Rumo ao Pentecostes',
+    dateFormatted: 'Dia 25 de 50 • Rumo ao Pentecostes',
+    verse: '“Também lhes contou Jesus uma parábola, para mostrar que deviam orar sempre e nunca desanimar.”',
+    verseRef: 'Lucas 18:1',
     author: 'Pr. Cristiano Garofano Kresse',
-    dateFormatted: 'Devocional Oficial',
-    audioFileName: 'devocional-hoje.mp3',
-    // Já liberado para teste imediato
+    audioFileName: 'devocional-dia-25.mp3',
+    // Liberado imediatamente para acesso hoje
     releaseAt: '2026-08-01T00:00:00-03:00',
-    desc: 'Uma reflexão profunda para alinhar seus pensamentos ao coração de Deus e começar o dia com autoridade e paz.',
+    reflection: 'É fácil orar quando o coração está queimando. Mas o que você faz quando não sente mais nada? Quando o céu parece de bronze e a resposta parece demorar?\n\nNo Dia 25 da nossa jornada, o Espírito Santo nos chama à PERSEVERANÇA. Os discípulos não receberam o fogo no primeiro dia de oração, eles permaneceram no cenáculo até a promessa se cumprir. O fogo não cai sobre quem apenas começa, o fogo cai sobre quem permanece!',
+    challenge: 'Volte hoje ao secreto e ore por pelo menos 15 minutos, MESMO QUE NÃO SINTA NADA. Não busque arrepios, busque a presença. Apenas permaneça e diga: "Senhor, estou aqui porque Te amo e confio em Ti."',
+    callToAction: 'Compartilhe esse devocional com alguém que pensou em desistir essa semana. Deus ainda está trabalhando no secreto!',
   }
 ];
 
 /**
- * Retorna a URL de áudio em CDN Global de alta velocidade com fallback
+ * Retorna as URLs de áudio em CDN Global de alta velocidade com fallback
  */
 export function getDevotionalAudioUrls(audioFileName) {
   if (!audioFileName) return [];

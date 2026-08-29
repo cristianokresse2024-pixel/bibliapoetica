@@ -1,4 +1,4 @@
-﻿import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   getActiveDevotional,
@@ -338,6 +338,48 @@ export default function Devotional() {
               </button>
             </div>
           </div>
+
+          {/* Mensagem e Reflexão Escrita */}
+          {currentDevotional.reflection && (
+            <div
+              style={{
+                marginTop: 24,
+                padding: '20px',
+                background: 'rgba(255,255,255,0.03)',
+                borderRadius: 14,
+                border: '1px solid rgba(255,255,255,0.06)',
+              }}
+            >
+              <h3 style={{ fontSize: 17, color: '#c4b5fd', margin: '0 0 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span>🕊️</span> Reflexão do Dia
+              </h3>
+              {currentDevotional.reflection.split('\n\n').map((par, i) => (
+                <p key={i} style={{ lineHeight: 1.7, color: '#cbd5e1', fontSize: 14.5, margin: '0 0 12px' }}>
+                  {par}
+                </p>
+              ))}
+            </div>
+          )}
+
+          {/* Desafio do Dia */}
+          {currentDevotional.challenge && (
+            <div
+              style={{
+                marginTop: 16,
+                padding: '18px 20px',
+                background: 'linear-gradient(135deg, rgba(239,68,68,0.12) 0%, rgba(20,15,35,0.8) 100%)',
+                borderRadius: 14,
+                border: '1px solid rgba(239,68,68,0.35)',
+              }}
+            >
+              <h4 style={{ fontSize: 15, color: '#fca5a5', margin: '0 0 8px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span>🔥</span> DESAFIO DO DIA
+              </h4>
+              <p style={{ margin: 0, color: '#f1f5f9', fontSize: 14, lineHeight: 1.6 }}>
+                {currentDevotional.challenge}
+              </p>
+            </div>
+          )}
         </div>
       </section>
 
