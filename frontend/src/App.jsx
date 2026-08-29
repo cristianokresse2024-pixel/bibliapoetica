@@ -23,6 +23,7 @@ import { captureReferralFromUrl } from './lib/ambassadorEngine.js';
 
 import SubscriptionGuard from './components/SubscriptionGuard.jsx';
 import AuthModal from './components/AuthModal.jsx';
+import InstallAppBanner from './components/InstallAppBanner.jsx';
 
 export default function App() {
   const [index, setIndex] = useState(null);
@@ -40,6 +41,7 @@ export default function App() {
 
   return (
     <div className="app">
+      <InstallAppBanner />
       <TopBar index={index} />
       <FastMonitor />
       <AuthModal />
