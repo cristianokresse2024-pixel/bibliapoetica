@@ -4,7 +4,9 @@ import { useToast } from '../lib/toast.jsx';
 import { beep, fmtHMS, ensureNotifyPermission, notify } from '../lib/notify.js';
 
 const PRESETS = [5, 10, 15, 20, 30, 45, 60];
-const MP3_URL = '/audio/lugar-secreto.mp3';
+
+// Caminho relativo universal do áudio
+const MP3_PATH = './audio/lugar-secreto.mp3';
 
 export default function Prayer() {
   const state = useProgress();
@@ -14,21 +16,23 @@ export default function Prayer() {
   const [remaining, setRemaining] = useState(goalMin * 60);
   const [elapsed, setElapsed] = useState(0);
   const [musicMode, setMusicMode] = useState('music'); // 'music' | 'none'
-  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
-  const [audioVolume, setAudioVolume] = useState(0.7);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [volume, setVolume] = useState(0.7);
+  const [audioError, setAudioError] = useState(null);
 
   const tickRef = useRef(null);
   const endRef = useRef(0);
   const audioRef = useRef(null);
 
-  // Inicializa o elemento de áudio nativo
+  // Sincroniza volume com elemento de áudio
   useEffect(() => {
-    const audio = new Audio(MP3_URL);
-    audio.loop = true;
-    audio.preload = 'auto';
-    audio.volume = audioVolume;
-    audioRef.current = audio;
+    if (audioRef.current) {
+      audioRef.current.volume = volume;
+    }
+  }, [volume]);
 
+  // Limpeza ao desmontar
+  useEffect(() => {
     return () => {
       clearInterval(tickRef.current);
       if (audioRef.current) {
@@ -38,34 +42,31 @@ export default function Prayer() {
     };
   }, []);
 
-  // Atualiza volume
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = audioVolume;
+  function start() {
+    // 1. Toca o áudio de forma síncrona no clique para autorizar o navegador (sem bloqueio de autoplay)
+    if (musicMode === 'music' && audioRef.current) {
+      setAudioError(null);
+      audioRef.current.currentTime = 0;
+      audioRef.current.play()
+        .then(() => setIsPlaying(true))
+        .catch((err) => {
+          console.warn('[Audio Autoplay Warning]:', err);
+          setIsPlaying(false);
+        });
+    } else if (audioRef.current) {
+      audioRef.current.pause();
+      setIsPlaying(false);
     }
-  }, [audioVolume]);
 
-  async function start() {
-    await ensureNotifyPermission();
+    // 2. Notificações (em segundo plano sem travar o clique)
+    ensureNotifyPermission().catch(() => {});
+
+    // 3. Inicialização do cronômetro
     const total = goalMin * 60;
     setPrayerGoal(goalMin);
     setRemaining(total);
     setElapsed(0);
     setPhase('praying');
-
-    // Reproduz o fundo musical MP3 se selecionado
-    if (musicMode === 'music' && audioRef.current) {
-      audioRef.current.currentTime = 0;
-      audioRef.current.play()
-        .then(() => setIsAudioPlaying(true))
-        .catch((err) => {
-          console.warn('[Prayer Audio Autoplay blocked]:', err);
-          setIsAudioPlaying(false);
-        });
-    } else if (audioRef.current) {
-      audioRef.current.pause();
-      setIsAudioPlaying(false);
-    }
 
     endRef.current = Date.now() + total * 1000;
     const startTs = Date.now();
@@ -85,15 +86,20 @@ export default function Prayer() {
     }, 250);
   }
 
-  function toggleAudioPlayback() {
+  function handleToggleAudio() {
     if (!audioRef.current) return;
-    if (isAudioPlaying) {
+    if (isPlaying) {
       audioRef.current.pause();
-      setIsAudioPlaying(false);
+      setIsPlaying(false);
     } else {
+      setAudioError(null);
       audioRef.current.play()
-        .then(() => setIsAudioPlaying(true))
-        .catch((e) => console.error(e));
+        .then(() => setIsPlaying(true))
+        .catch((err) => {
+          console.error('[Audio Play Error]:', err);
+          setAudioError('Toque no botão para autorizar a reprodução.');
+          setIsPlaying(false);
+        });
     }
   }
 
@@ -102,7 +108,7 @@ export default function Prayer() {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
-      setIsAudioPlaying(false);
+      setIsPlaying(false);
     }
     setPhase('done');
     const res = recordPrayer(seconds, goalMin);
@@ -118,7 +124,7 @@ export default function Prayer() {
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current.currentTime = 0;
-        setIsAudioPlaying(false);
+        setIsPlaying(false);
       }
       setPhase('setup');
       toast({ icon: '⏹️', title: 'Oração encerrada', desc: 'Tempo muito curto para registrar.' });
@@ -132,6 +138,23 @@ export default function Prayer() {
 
   return (
     <div className="fade-in prayer-page">
+      {/* Elemento de Áudio Nativo HTML5 */}
+      <audio
+        ref={audioRef}
+        src={MP3_PATH}
+        loop
+        preload="auto"
+        onPlay={() => setIsPlaying(true)}
+        onPause={() => setIsPlaying(false)}
+        onError={(e) => {
+          console.warn('[Audio load error, trying fallback]:', e);
+          // Fallback para caminho absoluto se relativo falhar
+          if (audioRef.current && !audioRef.current.src.includes('/audio/lugar-secreto.mp3')) {
+            audioRef.current.src = '/audio/lugar-secreto.mp3';
+          }
+        }}
+      />
+
       <section className="section">
         <h2 style={{ fontFamily: 'var(--serif)', fontSize: 28, margin: '18px 0 4px' }}>🕊️ Lugar Secreto</h2>
         <p className="sub">“Tu, porém, quando orares, entra no teu quarto e, fechada a porta, orarás a teu Pai em secreto.” — Mateus 6:6</p>
@@ -171,7 +194,7 @@ export default function Prayer() {
               >
                 <span className="mm-ic">🎶</span>
                 <span className="mm-name">Fundo Musical</span>
-                <span className="mm-desc">Áudio contínuo e suave</span>
+                <span className="mm-desc">Suave, contínuo e sem anúncios</span>
               </button>
               <button
                 type="button"
@@ -184,7 +207,7 @@ export default function Prayer() {
               </button>
             </div>
 
-            <button className="btn big-btn" onClick={start} style={{ marginTop: 12 }}>
+            <button className="btn big-btn" onClick={start} style={{ marginTop: 14 }}>
               🙏 Entrar no Lugar Secreto
             </button>
           </div>
@@ -217,12 +240,12 @@ export default function Prayer() {
               </div>
             </div>
 
-            {/* Controle de Áudio Durante a Oração */}
+            {/* Painel do Fundo Musical Durante a Oração */}
             {musicMode === 'music' && (
               <div
                 style={{
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '1px solid rgba(255,255,255,0.08)',
+                  background: 'rgba(251,191,36,0.06)',
+                  border: '1px solid rgba(251,191,36,0.2)',
                   borderRadius: 12,
                   padding: '12px 18px',
                   display: 'flex',
@@ -230,7 +253,7 @@ export default function Prayer() {
                   justifyContent: 'space-between',
                   gap: 12,
                   maxWidth: 380,
-                  margin: '10px auto 0',
+                  margin: '12px auto 0',
                   width: '100%',
                 }}
               >
@@ -238,13 +261,13 @@ export default function Prayer() {
                   <button
                     type="button"
                     className="btn ghost sm"
-                    onClick={toggleAudioPlayback}
-                    style={{ padding: '6px 12px', fontSize: 13 }}
+                    onClick={handleToggleAudio}
+                    style={{ padding: '6px 12px', fontSize: 13, background: 'rgba(255,255,255,0.08)' }}
                   >
-                    {isAudioPlaying ? '⏸ Pausar' : '▶ Tocar'}
+                    {isPlaying ? '⏸ Pausar' : '▶ Tocar'}
                   </button>
                   <span style={{ fontSize: 13, color: '#fde68a' }}>
-                    🎵 Fundo Musical Ativo
+                    {isPlaying ? '🎵 Música Tocando' : '⏸ Em Pausa'}
                   </span>
                 </div>
 
@@ -255,12 +278,18 @@ export default function Prayer() {
                     min="0"
                     max="1"
                     step="0.05"
-                    value={audioVolume}
-                    onChange={(e) => setAudioVolume(parseFloat(e.target.value))}
+                    value={volume}
+                    onChange={(e) => setVolume(parseFloat(e.target.value))}
                     style={{ width: 70 }}
                   />
                 </div>
               </div>
+            )}
+
+            {audioError && (
+              <p style={{ color: '#ef4444', fontSize: 12, marginTop: 6, textAlign: 'center' }}>
+                ⚠️ {audioError}
+              </p>
             )}
 
             <p className="muted" style={{ textAlign: 'center', maxWidth: 420, margin: '14px auto 0' }}>
