@@ -1,12 +1,16 @@
-import { useEffect, useRef, useState } from 'react';
+﻿import { useEffect, useRef, useState } from 'react';
 import { useProgress, recordPrayer, setPrayerGoal, setPrayerReminder } from '../lib/progress.js';
 import { useToast } from '../lib/toast.jsx';
 import { beep, fmtHMS, ensureNotifyPermission, notify } from '../lib/notify.js';
 
 const PRESETS = [5, 10, 15, 20, 30, 45, 60];
 
-// Caminho de streaming dedicado do áudio
-const MP3_PATH = '/api/audio';
+const AUDIO_SOURCES = [
+  './audio/lugar-secreto.mp3',
+  '/audio/lugar-secreto.mp3',
+  './lugar-secreto.mp3',
+  '/lugar-secreto.mp3'
+];
 
 export default function Prayer() {
   const state = useProgress();
@@ -18,7 +22,8 @@ export default function Prayer() {
   const [musicMode, setMusicMode] = useState('music'); // 'music' | 'none'
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.7);
-  const [audioError, setAudioError] = useState(null);
+  const [audioStatusText, setAudioStatusText] = useState('Pronto para tocar');
+  const [sourceIndex, setSourceIndex] = useState(0);
 
   const tickRef = useRef(null);
   const endRef = useRef(0);
@@ -42,17 +47,29 @@ export default function Prayer() {
     };
   }, []);
 
+  function playAudioDirectly() {
+    if (!audioRef.current) return;
+    setAudioStatusText('Carregando áudio...');
+    audioRef.current.volume = volume;
+    const playPromise = audioRef.current.play();
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          setIsPlaying(true);
+          setAudioStatusText('Tocando áudio');
+        })
+        .catch((err) => {
+          console.warn('[Audio play failed/blocked]:', err);
+          setIsPlaying(false);
+          setAudioStatusText('Toque em ▶ Tocar para iniciar');
+        });
+    }
+  }
+
   function start() {
     // 1. Toca o áudio de forma síncrona no clique para autorizar o navegador (sem bloqueio de autoplay)
-    if (musicMode === 'music' && audioRef.current) {
-      setAudioError(null);
-      audioRef.current.currentTime = 0;
-      audioRef.current.play()
-        .then(() => setIsPlaying(true))
-        .catch((err) => {
-          console.warn('[Audio Autoplay Warning]:', err);
-          setIsPlaying(false);
-        });
+    if (musicMode === 'music') {
+      playAudioDirectly();
     } else if (audioRef.current) {
       audioRef.current.pause();
       setIsPlaying(false);
@@ -91,15 +108,25 @@ export default function Prayer() {
     if (isPlaying) {
       audioRef.current.pause();
       setIsPlaying(false);
+      setAudioStatusText('Em Pausa');
     } else {
-      setAudioError(null);
-      audioRef.current.play()
-        .then(() => setIsPlaying(true))
-        .catch((err) => {
-          console.error('[Audio Play Error]:', err);
-          setAudioError('Toque no botão para autorizar a reprodução.');
-          setIsPlaying(false);
-        });
+      playAudioDirectly();
+    }
+  }
+
+  function handleAudioError(e) {
+    console.warn(`[Audio error on source: ${AUDIO_SOURCES[sourceIndex]}]:`, e);
+    if (sourceIndex < AUDIO_SOURCES.length - 1) {
+      const nextIdx = sourceIndex + 1;
+      setSourceIndex(nextIdx);
+      if (audioRef.current) {
+        audioRef.current.src = AUDIO_SOURCES[nextIdx];
+        if (phase === 'praying' && musicMode === 'music') {
+          audioRef.current.play().catch(() => {});
+        }
+      }
+    } else {
+      setAudioStatusText('Não foi possível carregar o arquivo de áudio.');
     }
   }
 
@@ -141,18 +168,13 @@ export default function Prayer() {
       {/* Elemento de Áudio Nativo HTML5 */}
       <audio
         ref={audioRef}
-        src={MP3_PATH}
+        src={AUDIO_SOURCES[sourceIndex]}
         loop
         preload="auto"
-        onPlay={() => setIsPlaying(true)}
-        onPause={() => setIsPlaying(false)}
-        onError={(e) => {
-          console.warn('[Audio load error, trying fallback]:', e);
-          // Fallback para caminho absoluto se relativo falhar
-          if (audioRef.current && !audioRef.current.src.includes('/audio/lugar-secreto.mp3')) {
-            audioRef.current.src = '/audio/lugar-secreto.mp3';
-          }
-        }}
+        onPlay={() => { setIsPlaying(true); setAudioStatusText('Tocando'); }}
+        onPause={() => { setIsPlaying(false); setAudioStatusText('Em Pausa'); }}
+        onPlaying={() => { setIsPlaying(true); setAudioStatusText('Tocando'); }}
+        onError={handleAudioError}
       />
 
       <section className="section">
@@ -266,8 +288,8 @@ export default function Prayer() {
                   >
                     {isPlaying ? '⏸ Pausar' : '▶ Tocar'}
                   </button>
-                  <span style={{ fontSize: 13, color: '#fde68a' }}>
-                    {isPlaying ? '🎵 Música Tocando' : '⏸ Em Pausa'}
+                  <span style={{ fontSize: 13, color: isPlaying ? '#fde68a' : 'var(--text-sub)' }}>
+                    {isPlaying ? '🎵 Tocando Música' : audioStatusText}
                   </span>
                 </div>
 
@@ -284,12 +306,6 @@ export default function Prayer() {
                   />
                 </div>
               </div>
-            )}
-
-            {audioError && (
-              <p style={{ color: '#ef4444', fontSize: 12, marginTop: 6, textAlign: 'center' }}>
-                ⚠️ {audioError}
-              </p>
             )}
 
             <p className="muted" style={{ textAlign: 'center', maxWidth: 420, margin: '14px auto 0' }}>
