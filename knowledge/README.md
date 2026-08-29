@@ -1,38 +1,26 @@
-# Base de Conhecimento — Viva Inteligente (RAG)
+# 📚 Base de Conhecimento Teológico — IA Viva (RAG)
 
-Esta pasta guarda os **materiais de conhecimento** que futuramente alimentarão a
-**IA Viva** por meio de RAG (Retrieval-Augmented Generation). A ideia é que a IA
-consulte primeiro estes materiais próprios/licenciados antes de responder.
+Este diretório é o repositório central para alimentar a sabedoria e os dados teológicos da **IA Viva**.
 
-> ⚠️ **Importante:** esta pasta é a **fonte** dos materiais. Ela NÃO é publicada
-> junto com o site (não faz parte do build do frontend). O processamento gera um
-> índice de busca (embeddings) que fica no backend.
+---
 
-## Estrutura
+## 📁 Estrutura de Pastas
 
 ```
 knowledge/
-├── teologia/           # fundamentos teológicos
-├── estudos-biblicos/   # estudos e roteiros
-├── comentarios/        # comentários bíblicos
-├── apostilas/          # apostilas e materiais didáticos
-├── fe-inteligente/     # material oficial do estudo Fé Inteligente
-└── materiais/          # materiais diversos
+├── pdfs/               <-- Coloque seus livros, artigos e comentários em formato .pdf aqui
+├── teologia/           <-- Resumos, dogmática, teologia sistemática em .md ou .txt
+├── comentarios/        <-- Comentários versículo a versículo (ex: Matthew Henry, Calvino, etc.)
+└── index/              <-- Base vetorial / índices processados para busca semântica
 ```
 
-## Como adicionar novos materiais
+---
 
-1. Coloque o arquivo (`.pdf`, `.txt`, `.md`) na subpasta mais apropriada.
-2. Rode a rotina de ingestão (será criada em fase futura):
-   ```
-   npm run ingest-knowledge
-   ```
-   Ela irá: detectar novos arquivos → extrair o texto → dividir em trechos (chunks)
-   → gerar embeddings → armazenar o índice para busca semântica.
-3. A IA Viva passará a usar esse conteúdo, citando a origem quando apropriado
-   (ex.: *"Fonte: material do Viva Inteligente"*).
+## 🚀 Como Funciona a Alimentação da IA
 
-## ⚖️ Direitos autorais
+1. **Adicionar Materiais:**
+   - Coloque seus PDFs na pasta `knowledge/pdfs/` ou textos em `knowledge/teologia/`.
 
-**Não** adicione materiais protegidos por direitos autorais sem autorização ou
-licença. Use apenas conteúdo próprio, de domínio público ou devidamente licenciado.
+2. **Processamento e Indexação (RAG):**
+   - O sistema extrai o texto, divide em tópicos e referências bíblicas correspondentes.
+   - Quando o usuário faz uma pergunta ou pede a explicação de um versículo, o backend (`api/lib/AIService.js`) consulta esses materiais prioritariamente para formular respostas com base fiel na sua biblioteca!
