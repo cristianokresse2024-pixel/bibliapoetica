@@ -65,16 +65,21 @@ function localApiPlugin() {
   };
 }
 
-const base = process.env.VITE_BASE_PATH || '/';
+const isVercel = Boolean(process.env.VERCEL || process.env.NOW_BUILDER);
+const base = process.env.VITE_BASE_PATH || './';
 const outDir = path.resolve(repoRoot, 'dist');
 
+// Build gerado sempre em dist/ e servido de forma consistente
 export default defineConfig({
   root: 'frontend',
   plugins: [react(), localApiPlugin()],
   base,
   build: {
     outDir,
-    emptyOutDir: true,
+    emptyOutDir: false,
+    rollupOptions: {
+      output: { manualChunks: undefined },
+    },
   },
   server: {
     host: '0.0.0.0',
