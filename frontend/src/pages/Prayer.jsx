@@ -1,12 +1,12 @@
-﻿import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useProgress, recordPrayer, setPrayerGoal, setPrayerReminder } from '../lib/progress.js';
 import { useToast } from '../lib/toast.jsx';
 import { beep, fmtHMS, ensureNotifyPermission, notify } from '../lib/notify.js';
 
 const PRESETS = [5, 10, 15, 20, 30, 45, 60];
 
-// Caminho relativo universal do áudio
-const MP3_PATH = './audio/lugar-secreto.mp3';
+// Caminho de streaming dedicado do áudio
+const MP3_PATH = '/api/audio';
 
 export default function Prayer() {
   const state = useProgress();
