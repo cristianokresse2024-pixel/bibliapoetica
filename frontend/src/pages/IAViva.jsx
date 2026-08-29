@@ -60,7 +60,7 @@ export default function IAViva() {
           <h1 className="ia-header-title">
             <IAIcon size={28} /> IA Viva
           </h1>
-          <p className="ia-header-sub">Sua companhia de estudo bíblico profundo, exegese e vida com Deus.</p>
+          <p className="ia-header-sub">Inteligência artificial com acesso a uma grande gama de conhecimento dos materiais do Movimento Viva Inteligente.</p>
         </div>
         {messages.length > 0 && (
           <button
@@ -115,13 +115,18 @@ export default function IAViva() {
           {busy && (
             <div className="ia-msg ia-bot">
               <span className="ia-ava"><IAIcon size={26} /></span>
-              <div className="ia-bubble ia-bubble-assistant ia-typing">
-                <span></span>
-                <span></span>
-                <span></span>
-                <span style={{ fontSize: 13, color: '#fde68a', fontWeight: 600, marginLeft: 8 }}>
-                  Examinando as Escrituras e elaborando resposta...
-                </span>
+              <div className="ia-bubble ia-bubble-assistant ia-typing-wrapper">
+                <div className="ia-brain-thinking">
+                  <span className="ia-brain-icon" role="img" aria-label="Cérebro pensando">🧠</span>
+                  <div className="ia-typing-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                  <span className="ia-thinking-text">
+                    Pensando e examinando as Escrituras...
+                  </span>
+                </div>
               </div>
             </div>
           )}

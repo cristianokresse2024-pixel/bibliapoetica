@@ -1,4 +1,5 @@
 import { generateAnswer } from './lib/AIService.js';
+import { retrieveContext } from './lib/KnowledgeRetriever.js';
 
 // =============================================================================
 // Endpoint serverless da IA Viva (Vercel) — chave do Groq protegida no backend.
@@ -112,7 +113,8 @@ export default async function handler(req, res) {
     }
 
     const safeHistory = Array.isArray(history) ? history.slice(-8) : [];
-    const answer = await generateAnswer({ question, history: safeHistory });
+    const context = retrieveContext(question);
+    const answer = await generateAnswer({ question, history: safeHistory, context });
 
     globalCount += 1;
     res.status(200).json({

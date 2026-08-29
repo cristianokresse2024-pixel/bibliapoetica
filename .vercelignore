@@ -1,0 +1,8 @@
+# Vercel Ignore
+knowledge/pdfs/
+knowledge/**/*.pdf
+knowledge/**/*.docx
+knowledge/**/*.epub
+audio/
+.git
+.github

@@ -25,11 +25,10 @@ export const BRAND = {
     'Os Estudos oferecem uma jornada de crescimento espiritual. Não se trata de ' +
     'faculdade, seminário, curso teológico formal nem certificação acadêmica ou profissional.',
 
-  // ---- Logo e favicon (preparado para a logo oficial futura) ----
-  // Troque estes caminhos quando a arte oficial estiver disponível.
-  logo: `${BASE}favicon.svg`,
-  favicon: `${BASE}favicon.svg`,
-  appIcon: `${BASE}covers/hero.jpg`,
+  // ---- Logo e favicon oficial do Movimento Fé Inteligente ----
+  logo: `${BASE}logo.png`,
+  favicon: `${BASE}favicon.png`,
+  appIcon: `${BASE}icon-512.png`,
 
   // ---- Cores (preservadas do tema atual; ajustar quando vier a identidade oficial) ----
   colors: {
