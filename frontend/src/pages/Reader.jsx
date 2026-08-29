@@ -10,6 +10,7 @@ import { useToast } from '../lib/toast.jsx';
 import { INTROS } from '../lib/intros.js';
 import BookIntro from '../components/BookIntro.jsx';
 import VerseAIModal from '../components/VerseAIModal.jsx';
+import IAIcon from '../components/IAIcon.jsx';
 
 const SEEN_KEY = 'biblia-poetica:intros-vistas';
 function getSeen() { try { return JSON.parse(localStorage.getItem(SEEN_KEY)) || {}; } catch { return {}; } }
@@ -159,7 +160,7 @@ export default function Reader({ index }) {
                     title="Explicar este versículo com a IA Viva"
                     onClick={() => setAiVerse({ verseNum: i + 1, text })}
                   >
-                    ✨ Explicar
+                    <IAIcon size={14} /> Explicar
                   </button>
                   <button className={`vtool ${favd ? 'on' : ''}`} title="Favoritar" onClick={() => fav(i)}>{favd ? '★' : '☆'}</button>
                   <button className="vtool" title="Anotar" onClick={() => setOpenNote(openNote === i ? null : i)}>✎</button>

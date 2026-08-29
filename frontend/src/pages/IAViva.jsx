@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { BRAND } from '../config/brand.js';
 import { aiReady, askIAViva } from '../services/aiService.js';
 import MarkdownView from '../components/MarkdownView.jsx';
+import IAIcon from '../components/IAIcon.jsx';
 
 // IA VIVA — assistente de estudo bíblico do ecossistema Viva Inteligente.
 // Fala com o endpoint serverless seguro /api/askIAViva (chave do Groq no backend).
@@ -56,7 +57,9 @@ export default function IAViva() {
     <div className="fade-in ia-screen-wrap">
       <div className="ia-header-bar">
         <div>
-          <h1 className="ia-header-title">✨ IA Viva</h1>
+          <h1 className="ia-header-title">
+            <IAIcon size={28} /> IA Viva
+          </h1>
           <p className="ia-header-sub">Sua companhia de estudo bíblico profundo, exegese e vida com Deus.</p>
         </div>
         {messages.length > 0 && (
@@ -77,7 +80,7 @@ export default function IAViva() {
         <div className="ia-chat-messages" ref={scrollRef}>
           {messages.length === 0 && (
             <div className="ia-msg ia-bot">
-              <span className="ia-ava">✨</span>
+              <span className="ia-ava"><IAIcon size={26} /></span>
               <div className="ia-bubble ia-bubble-assistant">
                 <div className="md-rendered">
                   <h3 className="md-h2" style={{ marginTop: 0 }}>
@@ -102,7 +105,7 @@ export default function IAViva() {
 
           {messages.map((m, i) => (
             <div key={i} className={`ia-msg ${m.role === 'user' ? 'ia-user' : 'ia-bot'}`}>
-              {m.role === 'assistant' && <span className="ia-ava">✨</span>}
+              {m.role === 'assistant' && <span className="ia-ava"><IAIcon size={26} /></span>}
               <div className={`ia-bubble ${m.role === 'assistant' ? 'ia-bubble-assistant' : ''}`}>
                 {m.role === 'assistant' ? <MarkdownView content={m.content} /> : m.content}
               </div>
@@ -111,7 +114,7 @@ export default function IAViva() {
 
           {busy && (
             <div className="ia-msg ia-bot">
-              <span className="ia-ava">✨</span>
+              <span className="ia-ava"><IAIcon size={26} /></span>
               <div className="ia-bubble ia-bubble-assistant ia-typing">
                 <span></span>
                 <span></span>

@@ -4,6 +4,7 @@ import { heroUrl, loadBook } from '../lib/data.js';
 import { useProgress, computeStats } from '../lib/progress.js';
 import { votdForToday } from '../lib/votd.js';
 import BookCard from '../components/BookCard.jsx';
+import IAIcon from '../components/IAIcon.jsx';
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -113,7 +114,7 @@ export default function Home({ index }) {
         <div className="sec-head"><h2>Ecossistema Viva Inteligente</h2></div>
         <div className="shortcut-grid">
           <Link to="/ia" className="shortcut sc-ia">
-            <span className="sc-ic">✨</span>
+            <span className="sc-ic"><IAIcon size={36} /></span>
             <span className="sc-title">IA Viva</span>
             <span className="sc-desc">Tire dúvidas e estude a Palavra</span>
           </Link>

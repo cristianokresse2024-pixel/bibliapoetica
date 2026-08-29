@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { askIAViva } from '../services/aiService.js';
 import MarkdownView from './MarkdownView.jsx';
 import { useToast } from '../lib/toast.jsx';
+import IAIcon from './IAIcon.jsx';
 
 export default function VerseAIModal({
   book,
@@ -76,7 +77,7 @@ Apresente:
         <div className="verse-ai-head">
           <div className="verse-ai-head-info">
             <span className="pill gold" style={{ fontSize: 11.5, padding: '4px 10px', gap: 5 }}>
-              ✨ IA VIVA EXEGESE
+              <IAIcon size={16} /> IA VIVA EXEGESE
             </span>
             <h2 className="verse-ai-title">{refLabel}</h2>
           </div>
