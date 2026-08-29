@@ -16,13 +16,12 @@ api/.env.local
 .firebase/
 firebase-debug.log
 
-# Base de conhecimento (RAG) e áudio: versiona a estrutura/README,
+# Base de conhecimento (RAG): versiona a estrutura/README,
 # mas NÃO os materiais pesados/licenciados (adicionados localmente/no backend).
 knowledge/**/*.pdf
 knowledge/**/*.docx
 knowledge/**/*.epub
-audio/**/*.mp3
-audio/**/*.ogg
-audio/**/*.wav
-audio/**/*.m4a
+!audio/lugar-secreto.mp3
+!frontend/public/audio/lugar-secreto.mp3
+!dist/audio/lugar-secreto.mp3
 .vercel
