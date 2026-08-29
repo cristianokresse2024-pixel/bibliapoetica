@@ -1,12 +1,16 @@
-import { useEffect, useRef, useState } from 'react';
+﻿import { useEffect, useRef, useState } from 'react';
 import { useProgress, recordPrayer, setPrayerGoal, setPrayerReminder } from '../lib/progress.js';
 import { useToast } from '../lib/toast.jsx';
 import { beep, fmtHMS, ensureNotifyPermission, notify } from '../lib/notify.js';
-import lugarSecretoAudio from '../assets/audio/lugar-secreto.mp3';
 
 const PRESETS = [5, 10, 15, 20, 30, 45, 60];
 
-const AUDIO_SRC = lugarSecretoAudio || './audio/lugar-secreto.mp3';
+// Fontes de áudio em CDN global com suporte a streaming progressivo de alta velocidade
+const AUDIO_SOURCES = [
+  'https://cdn.jsdelivr.net/gh/cristianokresse2024-pixel/bibliapoetica@main/audio/lugar-secreto.mp3',
+  'https://raw.githubusercontent.com/cristianokresse2024-pixel/bibliapoetica/main/audio/lugar-secreto.mp3',
+  './audio/lugar-secreto.mp3'
+];
 
 export default function Prayer() {
   const state = useProgress();
@@ -25,14 +29,14 @@ export default function Prayer() {
   const endRef = useRef(0);
   const audioRef = useRef(null);
 
-  // Sincroniza volume com elemento de áudio
+  // Sincroniza volume com o elemento de áudio
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = volume;
     }
   }, [volume]);
 
-  // Limpeza ao desmontar
+  // Limpeza de recursos ao desmontar
   useEffect(() => {
     return () => {
       clearInterval(tickRef.current);
@@ -45,17 +49,19 @@ export default function Prayer() {
 
   function playAudioDirectly() {
     if (!audioRef.current) return;
-    setAudioStatusText('Carregando áudio...');
+    setAudioStatusText('Iniciando música...');
     audioRef.current.volume = volume;
+    
+    // Reprodução síncrona no contexto do clique do usuário
     const playPromise = audioRef.current.play();
     if (playPromise !== undefined) {
       playPromise
         .then(() => {
           setIsPlaying(true);
-          setAudioStatusText('Tocando áudio');
+          setAudioStatusText('Tocando');
         })
         .catch((err) => {
-          console.warn('[Audio play failed/blocked]:', err);
+          console.warn('[Audio Play Warning]:', err);
           setIsPlaying(false);
           setAudioStatusText('Toque em ▶ Tocar para iniciar');
         });
@@ -63,7 +69,7 @@ export default function Prayer() {
   }
 
   function start() {
-    // 1. Toca o áudio de forma síncrona no clique para autorizar o navegador (sem bloqueio de autoplay)
+    // 1. Toca o áudio no mesmo frame do clique para evitar bloqueio de autoplay do navegador
     if (musicMode === 'music') {
       playAudioDirectly();
     } else if (audioRef.current) {
@@ -71,7 +77,7 @@ export default function Prayer() {
       setIsPlaying(false);
     }
 
-    // 2. Notificações (em segundo plano sem travar o clique)
+    // 2. Notificações
     ensureNotifyPermission().catch(() => {});
 
     // 3. Inicialização do cronômetro
@@ -111,7 +117,7 @@ export default function Prayer() {
   }
 
   function handleAudioError(e) {
-    console.warn(`[Audio error on source: ${AUDIO_SOURCES[sourceIndex]}]:`, e);
+    console.warn(`[Audio error on source ${AUDIO_SOURCES[sourceIndex]}]:`, e);
     if (sourceIndex < AUDIO_SOURCES.length - 1) {
       const nextIdx = sourceIndex + 1;
       setSourceIndex(nextIdx);
@@ -122,7 +128,7 @@ export default function Prayer() {
         }
       }
     } else {
-      setAudioStatusText('Não foi possível carregar o arquivo de áudio.');
+      setAudioStatusText('Não foi possível carregar a música.');
     }
   }
 
@@ -161,16 +167,17 @@ export default function Prayer() {
 
   return (
     <div className="fade-in prayer-page">
-      {/* Elemento de Áudio Nativo HTML5 */}
+      {/* Elemento de Áudio Nativo HTML5 com CDN Global */}
       <audio
         ref={audioRef}
-        src={AUDIO_SRC}
+        src={AUDIO_SOURCES[sourceIndex]}
         loop
         preload="auto"
         onPlay={() => { setIsPlaying(true); setAudioStatusText('Tocando'); }}
         onPause={() => { setIsPlaying(false); setAudioStatusText('Em Pausa'); }}
         onPlaying={() => { setIsPlaying(true); setAudioStatusText('Tocando'); }}
-        onError={() => setAudioStatusText('Arquivo de áudio indisponível')}
+        onWaiting={() => setAudioStatusText('Carregando...')}
+        onError={handleAudioError}
       />
 
       <section className="section">
