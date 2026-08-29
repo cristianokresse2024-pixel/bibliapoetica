@@ -1,4 +1,4 @@
-﻿// =============================================================================
+// =============================================================================
 // ENDPOINT SERVERLESS — CRIAÇÃO DE ASSINATURA RECORRENTE MERCADO PAGO
 // -----------------------------------------------------------------------------
 // Rota: POST /api/subscriptions/create
@@ -9,7 +9,8 @@
 import { MercadoPagoService } from '../lib/MercadoPagoService.js';
 
 const ALLOWED_ORIGINS = (
-  process.env.ALLOWED_ORIGINS || 'https://viva-inteligente.vercel.app'
+  process.env.ALLOWED_ORIGINS ||
+  'https://vivainteligente.app.br,https://www.vivainteligente.app.br,https://viva-inteligente.vercel.app'
 )
   .split(',')
   .map((s) => s.trim())

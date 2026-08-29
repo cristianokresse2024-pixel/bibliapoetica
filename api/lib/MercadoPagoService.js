@@ -1,4 +1,4 @@
-﻿// =============================================================================
+// =============================================================================
 // MERCADO PAGO SERVICE — CAMADA OFICIAL DE INTEGRAÇÃO COM MERCADO PAGO
 // -----------------------------------------------------------------------------
 // Todas as chaves e operações sensíveis permanecem estritamente no backend.
@@ -68,7 +68,7 @@ export class MercadoPagoService {
         transaction_amount: this.planPrice,
         currency_id: 'BRL',
       },
-      back_url: backUrl || 'https://viva-inteligente.vercel.app/#/perfil',
+      back_url: backUrl || 'https://vivainteligente.app.br/#/perfil',
       payer_email: payerEmail,
       external_reference: externalReference,
       status: 'pending',
