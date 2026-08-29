@@ -1,4 +1,5 @@
 ﻿import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   COURSES,
   getCourseById,
@@ -14,26 +15,17 @@ import { useToast } from '../lib/toast.jsx';
 export default function Studies() {
   const [selectedCourseId, setSelectedCourseId] = useState(null);
   const [activeLessonId, setActiveLessonId] = useState(null);
-  const [selectedCategory, setSelectedCategory] = useState('Todos');
-  const [completedState, setCompletedState] = useState(0); // Trigger re-render ao mudar status
+  const [completedState, setCompletedState] = useState(0);
   const toast = useToast();
 
   const selectedCourse = selectedCourseId ? getCourseById(selectedCourseId) : null;
 
-  // Flatten lessons do curso selecionado
+  // Flatten lessons do curso selecionado (se houver)
   const allLessons = selectedCourse
     ? selectedCourse.modules.flatMap((m) => m.lessons.map((l) => ({ ...l, moduleTitle: m.title })))
     : [];
 
   const currentLesson = allLessons.find((l) => l.id === activeLessonId) || allLessons[0] || null;
-
-  const handleOpenCourse = (course) => {
-    setSelectedCourseId(course.id);
-    if (course.modules?.[0]?.lessons?.[0]) {
-      setActiveLessonId(course.modules[0].lessons[0].id);
-    }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
 
   const handleToggleComplete = (lessonId) => {
     const isNowDone = toggleLessonCompletion(lessonId);
@@ -63,13 +55,8 @@ export default function Studies() {
     }
   };
 
-  const categories = ['Todos', ...new Set(COURSES.map((c) => c.category))];
-  const filteredCourses = selectedCategory === 'Todos'
-    ? COURSES
-    : COURSES.filter((c) => c.category === selectedCategory);
-
   // ===========================================================================
-  // MODO 1: SALA DE AULA / PLAYER DO CURSO
+  // MODO 1: SALA DE AULA (Quando houver cursos e um for selecionado)
   // ===========================================================================
   if (selectedCourse && currentLesson) {
     const isCurrentDone = isLessonCompleted(currentLesson.id);
@@ -84,7 +71,6 @@ export default function Studies() {
 
     return (
       <div className="fade-in member-classroom">
-        {/* Barra superior de navegação da aula */}
         <div className="classroom-topbar">
           <button
             className="btn ghost sm classroom-back-btn"
@@ -102,30 +88,25 @@ export default function Studies() {
         </div>
 
         <div className="classroom-layout">
-          {/* Coluna Principal: Player e Detalhes */}
           <div className="classroom-main">
-            <div className="classroom-player-wrapper">
+            <div className="classroom-video-wrap">
               {embedUrl ? (
                 <iframe
                   src={embedUrl}
                   title={currentLesson.title}
-                  className="classroom-iframe"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
+                  className="classroom-iframe"
                 />
               ) : (
                 <div className="classroom-video-placeholder">
-                  <div className="placeholder-icon">📹</div>
-                  <h3>{currentLesson.title}</h3>
-                  <p>
-                    Esta aula está sendo preparada e será publicada no canal exclusivo do Movimento Fé Inteligente.
-                  </p>
-                  <span className="placeholder-tag">Módulo: {currentLesson.moduleTitle}</span>
+                  <div className="placeholder-icon">🎬</div>
+                  <h3>Aula em Produção</h3>
+                  <p>Esta aula está sendo gravada e será publicada em breve.</p>
                 </div>
               )}
             </div>
 
-            {/* Controles da Aula */}
             <div className="classroom-action-bar">
               <div className="classroom-nav-btns">
                 <button
@@ -153,62 +134,19 @@ export default function Studies() {
               </button>
             </div>
 
-            {/* Detalhes do Conteúdo */}
             <div className="classroom-details-card">
               <span className="classroom-module-tag">{currentLesson.moduleTitle}</span>
               <h1 className="classroom-lesson-title">{currentLesson.title}</h1>
-              
               {currentLesson.verses && (
                 <div className="classroom-verses-box">
                   <strong>📖 Referências Bíblicas:</strong> {currentLesson.verses}
                 </div>
               )}
-
-              <div className="classroom-desc">
-                <p>{currentLesson.desc}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Coluna Lateral: Grade de Módulos e Aulas */}
-          <div className="classroom-sidebar">
-            <h3 className="sidebar-title">Conteúdo do Curso</h3>
-            <div className="classroom-modules-accordion">
-              {selectedCourse.modules.map((mod, modIdx) => (
-                <div key={mod.id} className="module-group">
-                  <div className="module-header">
-                    <h4>{mod.title}</h4>
-                    {mod.desc && <p className="module-sub">{mod.desc}</p>}
-                  </div>
-                  <div className="module-lessons-list">
-                    {mod.lessons.map((les, lesIdx) => {
-                      const isSelected = les.id === currentLesson.id;
-                      const isDone = isLessonCompleted(les.id);
-                      return (
-                        <button
-                          key={les.id}
-                          type="button"
-                          className={`lesson-item-btn ${isSelected ? 'active' : ''} ${isDone ? 'completed' : ''}`}
-                          onClick={() => {
-                            setActiveLessonId(les.id);
-                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                          }}
-                        >
-                          <div className="lesson-item-left">
-                            <span className="lesson-check-icon">
-                              {isDone ? '✓' : '▶'}
-                            </span>
-                            <div className="lesson-item-text">
-                              <span className="lesson-name">{les.title}</span>
-                              <span className="lesson-dur">{les.duration || 'Vídeo'}</span>
-                            </div>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
+              {currentLesson.desc && (
+                <div className="classroom-desc">
+                  <p>{currentLesson.desc}</p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>
@@ -217,87 +155,147 @@ export default function Studies() {
   }
 
   // ===========================================================================
-  // MODO 2: CATÁLOGO DE CURSOS / ÁREA DE MEMBROS
+  // MODO 2: QUANDO AINDA NÃO HÁ AULAS CADASTRADAS (EM CONSTRUÇÃO)
+  // ===========================================================================
+  if (COURSES.length === 0) {
+    return (
+      <div className="fade-in studies-under-construction-wrap">
+        {/* Cabeçalho */}
+        <section className="section">
+          <h2 style={{ fontFamily: 'var(--serif)', fontSize: 28, margin: '18px 0 4px' }}>
+            🎓 Estudos & Formações
+          </h2>
+          <p className="sub">
+            Área exclusiva de aulas em vídeo, trilhas de estudo e aprofundamento bíblico.
+          </p>
+        </section>
+
+        {/* Card Principal: Em Produção */}
+        <section className="section">
+          <div
+            className="secret-card"
+            style={{
+              textAlign: 'center',
+              padding: '40px 20px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 16,
+              background: 'linear-gradient(180deg, rgba(251,191,36,0.06) 0%, rgba(20,15,35,0.8) 100%)',
+              border: '1px solid rgba(251,191,36,0.25)',
+              borderRadius: 16,
+            }}
+          >
+            <div
+              style={{
+                width: 72,
+                height: 72,
+                borderRadius: '50%',
+                background: 'rgba(251,191,36,0.15)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 34,
+                boxShadow: '0 0 24px rgba(251,191,36,0.2)',
+              }}
+            >
+              🎬
+            </div>
+
+            <div>
+              <span className="sc-badge gold-badge" style={{ marginBottom: 8, display: 'inline-block' }}>
+                ⏳ Em Produção
+              </span>
+              <h3 style={{ margin: '8px 0 6px', fontSize: 22, color: '#fde68a' }}>
+                Aulas e Cursos em Gravação
+              </h3>
+              <p className="muted" style={{ margin: '0 auto', maxWidth: 540, lineHeight: 1.6, fontSize: 14.5 }}>
+                Estamos gravando e preparando aulas em vídeo exclusivas, trilhas temáticas e materiais de aprofundamento bíblico para você.
+              </p>
+            </div>
+
+            {/* O que você encontrará em breve */}
+            <div
+              style={{
+                width: '100%',
+                maxWidth: 520,
+                background: 'rgba(255,255,255,0.03)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: 12,
+                padding: '16px 20px',
+                textAlign: 'left',
+                margin: '12px 0 6px',
+              }}
+            >
+              <h4 style={{ margin: '0 0 10px', fontSize: 14, color: '#c4b5fd' }}>
+                ✨ O que você encontrará nesta área em breve:
+              </h4>
+              <ul style={{ margin: 0, paddingLeft: 20, color: 'var(--text-sub)', fontSize: 13.5, lineHeight: 1.8 }}>
+                <li>🎥 <strong>Vídeo Aulas Exclusivas:</strong> Conteúdos dinâmicos e práticos sobre os princípios do Reino.</li>
+                <li>📜 <strong>Materiais de Apoio:</strong> Referências bíblicas e resumos para estudo individual.</li>
+                <li>📊 <strong>Controle de Progresso:</strong> Marque aulas assistidas e acompanhe sua evolução.</li>
+              </ul>
+            </div>
+
+            <p className="muted" style={{ fontSize: 13.5, margin: 0 }}>
+              Enquanto as aulas estão sendo finalizadas, aproveite todo o poder da <strong>IA Viva</strong>, do <strong>Lugar Secreto</strong> e da <strong>Leitura Bíblica</strong>!
+            </p>
+
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center', marginTop: 6 }}>
+              <Link to="/ia" className="btn">
+                💡 Conversar com a IA Viva →
+              </Link>
+              <Link to="/livros" className="btn ghost">
+                📖 Ler a Bíblia
+              </Link>
+            </div>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
+  // ===========================================================================
+  // MODO 3: CATÁLOGO DE CURSOS (Quando houver cursos cadastrados no futuro)
   // ===========================================================================
   return (
     <div className="fade-in member-area-catalog">
-      {/* Hero Header */}
       <section className="section member-hero">
         <div className="member-hero-glow" />
         <div className="member-hero-content">
           <span className="sc-badge gold-badge">👑 Área de Membros</span>
           <h1 className="member-hero-title">Estudos e Aulas do Reino</h1>
           <p className="member-hero-desc">
-            Assista às aulas exclusivas da Mentoria Fé Inteligente, aprofunde seus conhecimentos bíblicos e acompanhe sua evolução espiritual.
+            Assista às aulas exclusivas, aprofunde seus conhecimentos bíblicos e acompanhe sua evolução espiritual.
           </p>
         </div>
       </section>
 
-      {/* Filtro por Categoria */}
-      <section className="section">
-        <div className="member-category-pills">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              type="button"
-              className={`category-pill-btn ${selectedCategory === cat ? 'active' : ''}`}
-              onClick={() => setSelectedCategory(cat)}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-      </section>
-
-      {/* Grade de Cursos */}
       <section className="section">
         <div className="member-courses-grid">
-          {filteredCourses.map((course) => {
+          {COURSES.map((course) => {
             const totalLessons = getAllLessonsCount(course);
             const doneLessons = getCompletedLessonsCount(course);
             const percent = totalLessons > 0 ? Math.round((doneLessons / totalLessons) * 100) : 0;
 
             return (
-              <div key={course.id} className="member-course-card">
-                <div
-                  className="member-course-cover"
-                  style={{ background: course.coverBg || 'linear-gradient(135deg, #1e1b4b, #312e81)' }}
-                >
-                  <span className="course-icon">{course.icon || '🎓'}</span>
-                  {course.badge && <span className="course-badge">{course.badge}</span>}
+              <div key={course.id} className="member-course-card" onClick={() => handleOpenCourse(course)}>
+                <div className="course-cover" style={{ background: course.coverBg || 'linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%)' }}>
+                  <span className="course-icon-badge">{course.icon || '🎓'}</span>
+                  {course.badge && <span className="course-type-badge">{course.badge}</span>}
                 </div>
-
-                <div className="member-course-body">
-                  <span className="course-cat">{course.category}</span>
-                  <h3 className="course-name">{course.title}</h3>
+                <div className="course-card-body">
+                  <span className="course-category-tag">{course.category}</span>
+                  <h3 className="course-title">{course.title}</h3>
                   <p className="course-desc">{course.desc}</p>
-
-                  {/* Barra de Progresso */}
-                  <div className="course-progress-box">
-                    <div className="row-between" style={{ fontSize: 12, marginBottom: 4, color: '#c4b5fd' }}>
-                      <span>{doneLessons} de {totalLessons} aulas</span>
-                      <strong>{percent}%</strong>
-                    </div>
-                    <div className="course-progress-bar">
-                      <div className="course-progress-fill" style={{ width: `${percent}%` }} />
-                    </div>
+                  <div className="course-card-footer">
+                    <span className="course-lessons-count">📚 {totalLessons} aulas</span>
+                    <button type="button" className="btn sm">Acessar Curso →</button>
                   </div>
-
-                  <button
-                    type="button"
-                    className="btn member-access-btn"
-                    onClick={() => handleOpenCourse(course)}
-                  >
-                    {doneLessons > 0 ? '▶ Continuar Assistindo' : '▶ Começar Estudo'}
-                  </button>
                 </div>
               </div>
             );
           })}
-        </div>
-
-        <div className="note-box" style={{ marginTop: 26 }}>
-          💡 <strong>Novas aulas toda semana:</strong> Os links das aulas gravadas no YouTube são inseridos diretamente em cada módulo do curso para você assistir no seu ritmo.
         </div>
       </section>
     </div>
