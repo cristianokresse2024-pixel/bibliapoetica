@@ -1,12 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+﻿import { useEffect, useRef, useState } from 'react';
 import { useProgress, recordPrayer, setPrayerGoal, setPrayerReminder } from '../lib/progress.js';
 import { useToast } from '../lib/toast.jsx';
 import { beep, fmtHMS, ensureNotifyPermission, notify } from '../lib/notify.js';
-import { startAmbient, stopAmbient } from '../lib/ambient.js';
 
-// Vídeo/fundo musical enviado pelo usuário
-const YT_ID = 'gJiE359iht4';
 const PRESETS = [5, 10, 15, 20, 30, 45, 60];
+const MP3_URL = '/audio/lugar-secreto.mp3';
 
 export default function Prayer() {
   const state = useProgress();
@@ -15,12 +13,37 @@ export default function Prayer() {
   const [phase, setPhase] = useState('setup'); // setup | praying | done
   const [remaining, setRemaining] = useState(goalMin * 60);
   const [elapsed, setElapsed] = useState(0);
-  const [musicMode, setMusicMode] = useState('ambient'); // ambient | youtube | none
-  const [ytOn, setYtOn] = useState(false);
+  const [musicMode, setMusicMode] = useState('music'); // 'music' | 'none'
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  const [audioVolume, setAudioVolume] = useState(0.7);
+
   const tickRef = useRef(null);
   const endRef = useRef(0);
+  const audioRef = useRef(null);
 
-  useEffect(() => () => { clearInterval(tickRef.current); stopAmbient(); }, []);
+  // Inicializa o elemento de áudio nativo
+  useEffect(() => {
+    const audio = new Audio(MP3_URL);
+    audio.loop = true;
+    audio.preload = 'auto';
+    audio.volume = audioVolume;
+    audioRef.current = audio;
+
+    return () => {
+      clearInterval(tickRef.current);
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+    };
+  }, []);
+
+  // Atualiza volume
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = audioVolume;
+    }
+  }, [audioVolume]);
 
   async function start() {
     await ensureNotifyPermission();
@@ -29,11 +52,25 @@ export default function Prayer() {
     setRemaining(total);
     setElapsed(0);
     setPhase('praying');
-    if (musicMode === 'youtube') setYtOn(true);
-    if (musicMode === 'ambient') startAmbient(0.35);
+
+    // Reproduz o fundo musical MP3 se selecionado
+    if (musicMode === 'music' && audioRef.current) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.play()
+        .then(() => setIsAudioPlaying(true))
+        .catch((err) => {
+          console.warn('[Prayer Audio Autoplay blocked]:', err);
+          setIsAudioPlaying(false);
+        });
+    } else if (audioRef.current) {
+      audioRef.current.pause();
+      setIsAudioPlaying(false);
+    }
+
     endRef.current = Date.now() + total * 1000;
     const startTs = Date.now();
     clearInterval(tickRef.current);
+
     tickRef.current = setInterval(() => {
       const now = Date.now();
       const rem = Math.round((endRef.current - now) / 1000);
@@ -48,10 +85,25 @@ export default function Prayer() {
     }, 250);
   }
 
+  function toggleAudioPlayback() {
+    if (!audioRef.current) return;
+    if (isAudioPlaying) {
+      audioRef.current.pause();
+      setIsAudioPlaying(false);
+    } else {
+      audioRef.current.play()
+        .then(() => setIsAudioPlaying(true))
+        .catch((e) => console.error(e));
+    }
+  }
+
   function finish(seconds, completedFull) {
     clearInterval(tickRef.current);
-    setYtOn(false);
-    stopAmbient();
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setIsAudioPlaying(false);
+    }
     setPhase('done');
     const res = recordPrayer(seconds, goalMin);
     toast({ icon: '🙏', title: `+${5 + res.mins} XP`, desc: `Oração de ${res.mins} min registrada!` });
@@ -62,10 +114,12 @@ export default function Prayer() {
 
   function stopEarly() {
     if (elapsed < 30) {
-      // muito curto: descarta
       clearInterval(tickRef.current);
-      setYtOn(false);
-      stopAmbient();
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        setIsAudioPlaying(false);
+      }
       setPhase('setup');
       toast({ icon: '⏹️', title: 'Oração encerrada', desc: 'Tempo muito curto para registrar.' });
       return;
@@ -96,37 +150,43 @@ export default function Prayer() {
             </div>
             <div className="custom-row">
               <label>Personalizado:</label>
-              <input type="number" min="1" max="240" value={goalMin}
+              <input
+                type="number"
+                min="1"
+                max="240"
+                value={goalMin}
                 onChange={(e) => setGoalMin(Math.max(1, Math.min(240, parseInt(e.target.value || '1', 10))))}
-                className="select" style={{ width: 90 }} />
+                className="select"
+                style={{ width: 90 }}
+              />
               <span className="muted">minutos</span>
             </div>
 
-            <h3 style={{ marginBottom: 4 }}>🎵 Fundo musical</h3>
-            <div className="music-modes">
-              <button className={`music-mode ${musicMode === 'ambient' ? 'active' : ''}`} onClick={() => setMusicMode('ambient')}>
+            <h3 style={{ marginBottom: 8, marginTop: 16 }}>🎵 Fundo musical de oração</h3>
+            <div className="music-modes" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))' }}>
+              <button
+                type="button"
+                className={`music-mode ${musicMode === 'music' ? 'active' : ''}`}
+                onClick={() => setMusicMode('music')}
+              >
                 <span className="mm-ic">🎶</span>
-                <span className="mm-name">Som ambiente</span>
-                <span className="mm-desc">Suave, sem anúncios</span>
+                <span className="mm-name">Fundo Musical</span>
+                <span className="mm-desc">Áudio contínuo e suave</span>
               </button>
-              <button className={`music-mode ${musicMode === 'youtube' ? 'active' : ''}`} onClick={() => setMusicMode('youtube')}>
-                <span className="mm-ic">▶️</span>
-                <span className="mm-name">YouTube</span>
-                <span className="mm-desc">Playlist de louvor</span>
-              </button>
-              <button className={`music-mode ${musicMode === 'none' ? 'active' : ''}`} onClick={() => setMusicMode('none')}>
+              <button
+                type="button"
+                className={`music-mode ${musicMode === 'none' ? 'active' : ''}`}
+                onClick={() => setMusicMode('none')}
+              >
                 <span className="mm-ic">🔇</span>
                 <span className="mm-name">Silêncio</span>
                 <span className="mm-desc">Sem música</span>
               </button>
             </div>
-            {musicMode === 'youtube' && (
-              <p className="muted" style={{ margin: 0, fontSize: 12.5 }}>
-                💡 <strong>Dica para oração sem anúncios:</strong> abra o app no navegador <strong>Brave</strong> (com o Shields ligado) ou use um bloqueador como o uBlock Origin — assim o YouTube toca limpo. Sem isso, podem aparecer anúncios. Para zero configuração, use o <strong>Som ambiente</strong>.
-              </p>
-            )}
 
-            <button className="btn big-btn" onClick={start}>🙏 Entrar no Lugar Secreto</button>
+            <button className="btn big-btn" onClick={start} style={{ marginTop: 12 }}>
+              🙏 Entrar no Lugar Secreto
+            </button>
           </div>
         </section>
       )}
@@ -143,8 +203,13 @@ export default function Prayer() {
                   </linearGradient>
                 </defs>
                 <circle cx="150" cy="150" r="130" className="ring-bg" />
-                <circle cx="150" cy="150" r="130" className="ring-fg"
-                  style={{ stroke: 'url(#goldgrad)', strokeDasharray: circ, strokeDashoffset: circ - (circ * progress) / 100 }} />
+                <circle
+                  cx="150"
+                  cy="150"
+                  r="130"
+                  className="ring-fg"
+                  style={{ stroke: 'url(#goldgrad)', strokeDasharray: circ, strokeDashoffset: circ - (circ * progress) / 100 }}
+                />
               </svg>
               <div className="timer-center">
                 <div className="timer-big">{fmtHMS(Math.max(0, remaining))}</div>
@@ -152,28 +217,59 @@ export default function Prayer() {
               </div>
             </div>
 
-            {ytOn && (
-              <div className="yt-wrap">
-                <iframe
-                  title="Fundo musical de oração"
-                  width="100%" height="120"
-                  src={`https://www.youtube-nocookie.com/embed/${YT_ID}?autoplay=1&loop=1&playlist=${YT_ID}&controls=1&modestbranding=1&rel=0`}
-                  frameBorder="0"
-                  allow="autoplay; encrypted-media; fullscreen"
-                  allowFullScreen
-                />
-                <div className="yt-hint">
-                  🎵 Se não iniciar, toque em ▶ acima. Anúncios? Use o navegador <strong>Brave</strong> ou um bloqueador.{' '}
-                  <a href={`https://www.youtube.com/watch?v=${YT_ID}&list=RD${YT_ID}&start_radio=1`} target="_blank" rel="noreferrer">Abrir no YouTube</a>
+            {/* Controle de Áudio Durante a Oração */}
+            {musicMode === 'music' && (
+              <div
+                style={{
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  borderRadius: 12,
+                  padding: '12px 18px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: 12,
+                  maxWidth: 380,
+                  margin: '10px auto 0',
+                  width: '100%',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <button
+                    type="button"
+                    className="btn ghost sm"
+                    onClick={toggleAudioPlayback}
+                    style={{ padding: '6px 12px', fontSize: 13 }}
+                  >
+                    {isAudioPlaying ? '⏸ Pausar' : '▶ Tocar'}
+                  </button>
+                  <span style={{ fontSize: 13, color: '#fde68a' }}>
+                    🎵 Fundo Musical Ativo
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: 12 }} className="muted">🔊</span>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.05"
+                    value={audioVolume}
+                    onChange={(e) => setAudioVolume(parseFloat(e.target.value))}
+                    style={{ width: 70 }}
+                  />
                 </div>
               </div>
             )}
 
-            <p className="muted" style={{ textAlign: 'center', maxWidth: 420, margin: '4px auto 0' }}>
+            <p className="muted" style={{ textAlign: 'center', maxWidth: 420, margin: '14px auto 0' }}>
               Aquiete o coração. Fale com Deus como se fala a um amigo. Ele está aqui, no secreto.
             </p>
 
-            <button className="btn ghost big-btn" onClick={stopEarly}>Concluir oração</button>
+            <button className="btn ghost big-btn" onClick={stopEarly}>
+              Concluir oração
+            </button>
           </div>
         </section>
       )}
@@ -201,12 +297,15 @@ export default function Prayer() {
             <div className="row-between">
               <h3 style={{ margin: 0 }}>🔔 Lembrete diário de oração</h3>
               <label className="switch">
-                <input type="checkbox" checked={state.prayerReminder.enabled}
+                <input
+                  type="checkbox"
+                  checked={state.prayerReminder.enabled}
                   onChange={async (e) => {
                     if (e.target.checked) { await ensureNotifyPermission(); }
                     setPrayerReminder({ enabled: e.target.checked });
                     if (e.target.checked) toast({ icon: '🔔', title: 'Lembrete ativado!', desc: `Todo dia às ${state.prayerReminder.time}` });
-                  }} />
+                  }}
+                />
                 <span className="slider" />
               </label>
             </div>
@@ -216,8 +315,12 @@ export default function Prayer() {
             {state.prayerReminder.enabled && (
               <div className="custom-row">
                 <label>Horário:</label>
-                <input type="time" className="select" value={state.prayerReminder.time}
-                  onChange={(e) => setPrayerReminder({ time: e.target.value })} />
+                <input
+                  type="time"
+                  className="select"
+                  value={state.prayerReminder.time}
+                  onChange={(e) => setPrayerReminder({ time: e.target.value })}
+                />
               </div>
             )}
           </div>
