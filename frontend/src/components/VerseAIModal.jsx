@@ -24,13 +24,13 @@ export default function VerseAIModal({
   async function fetchExplanation() {
     setLoading(true);
     setError('');
-    const prompt = `Por favor, faça uma explicação teológica e pastoral profunda do versículo ${refLabel} (${version.toUpperCase()}): "${verseText}".
-Apresente:
-1. 📖 Contexto Histórico, Cultural e Literário
-2. 🔍 Significado no Original (Grego Koiné ou Hebraico) e Exegese
-3. 💡 Principais Lições Teológicas
-4. 🌿 Aplicação Prática para a Vida Diária
-5. 🙏 Oração Breve de Meditação`;
+    const prompt = `Explique de forma profunda, clara, acolhedora e humana o versículo ${refLabel} (${version.toUpperCase()}): "${verseText}".
+Use uma linguagem simples e inspiradora, sem termos técnicos difíceis, para que qualquer pessoa compreenda com clareza e seja edificada na fé.
+Organize em:
+1. 📖 O que estava acontecendo naquele momento? (Contexto de forma simples e viva)
+2. 💡 O que esse versículo ensina para o seu coração? (O significado real e profundo)
+3. 🌿 Como praticar isso hoje no seu dia a dia? (Exemplos práticos para a vida e família)
+4. 🙏 Oração para hoje (Uma oração sincera e tocante)`;
 
     try {
       const res = await askIAViva(prompt);
