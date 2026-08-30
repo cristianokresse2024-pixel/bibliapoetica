@@ -383,12 +383,15 @@ export default function Devotional() {
         </div>
       </section>
 
-      {/* Histórico: Devocionais Anteriores */}
+      {/* Histórico: Apenas o Devocional do Dia Anterior (Ontem) */}
       {pastList.length > 0 && (
         <section className="section" style={{ marginTop: 24 }}>
-          <h3 style={{ fontSize: 20, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span>📜</span> Devocionais Anteriores
+          <h3 style={{ fontSize: 20, marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span>📜</span> Devocional de Ontem (Dia Anterior)
           </h3>
+          <p className="sub" style={{ fontSize: 13, marginBottom: 12 }}>
+            Caso tenha perdido o devocional de ontem, você ainda pode ouvir e fazer a sua oração:
+          </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {pastList.map((item) => (
               <div

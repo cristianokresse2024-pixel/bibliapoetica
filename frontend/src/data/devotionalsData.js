@@ -141,9 +141,11 @@ export function getActiveDevotional() {
 }
 
 /**
- * Retorna os devocionais anteriores já liberados (excluindo o devocional ativo principal)
+ * Retorna apenas o devocional do dia anterior (ontem) já liberado,
+ * permitindo que quem perdeu o dia anterior ainda consiga ouvir.
  */
 export function getPastDevotionals() {
   const list = getReleasedDevotionals();
-  return list.slice(1);
+  // Retorna estritamente apenas 1 devocional anterior (o dia de ontem)
+  return list.slice(1, 2);
 }
