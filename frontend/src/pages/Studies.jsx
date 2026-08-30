@@ -1,5 +1,7 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext.jsx';
+import { getUserUnlockedEntitlements } from '../lib/ambassadorEngine.js';
 import {
   COURSES,
   getCourseById,
@@ -13,6 +15,8 @@ import { BRAND } from '../config/brand.js';
 import { useToast } from '../lib/toast.jsx';
 
 export default function Studies() {
+  const { user } = useAuth();
+  const entitlements = getUserUnlockedEntitlements(user);
   const [selectedCourseId, setSelectedCourseId] = useState(null);
   const [activeLessonId, setActiveLessonId] = useState(null);
   const [completedState, setCompletedState] = useState(0);
@@ -55,8 +59,16 @@ export default function Studies() {
     }
   };
 
+  const handleOpenCourse = (course) => {
+    if (!course) return;
+    setSelectedCourseId(course.id);
+    const firstLesson = course.modules?.[0]?.lessons?.[0];
+    if (firstLesson) setActiveLessonId(firstLesson.id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // ===========================================================================
-  // MODO 1: SALA DE AULA (Quando houver cursos e um for selecionado)
+  // MODO 1: SALA DE AULA (Quando um curso for selecionado)
   // ===========================================================================
   if (selectedCourse && currentLesson) {
     const isCurrentDone = isLessonCompleted(currentLesson.id);
@@ -64,6 +76,9 @@ export default function Studies() {
     const hasNext = currentIndex < allLessons.length - 1;
     const hasPrev = currentIndex > 0;
     const embedUrl = getYoutubeEmbedUrl(currentLesson.youtubeUrl);
+
+    // Permissão da aula atual
+    const isCurrentLocked = !entitlements.canAccessAll && (currentIndex >= entitlements.allowedLessonsCount);
 
     const totalInCourse = getAllLessonsCount(selectedCourse);
     const doneInCourse = getCompletedLessonsCount(selectedCourse);
@@ -76,7 +91,7 @@ export default function Studies() {
             className="btn ghost sm classroom-back-btn"
             onClick={() => setSelectedCourseId(null)}
           >
-            ← Voltar aos Cursos
+            ← Voltar ao Catálogo
           </button>
           <div className="classroom-course-info">
             <span className="classroom-badge">{selectedCourse.badge || 'Curso'}</span>
@@ -88,9 +103,27 @@ export default function Studies() {
         </div>
 
         <div className="classroom-layout">
+          {/* Coluna Principal: Player e Detalhes da Aula */}
           <div className="classroom-main">
             <div className="classroom-video-wrap">
-              {embedUrl ? (
+              {isCurrentLocked ? (
+                <div className="classroom-video-placeholder" style={{ background: 'linear-gradient(135deg, #1c1438 0%, #0d091e 100%)', border: '1px solid rgba(251,191,36,0.3)' }}>
+                  <div className="placeholder-icon">🔒</div>
+                  <h3 style={{ color: '#fde68a' }}>Aula Exclusiva</h3>
+                  <p style={{ maxWidth: 460 }}>
+                    Você liberou as <strong>primeiras {entitlements.allowedLessonsCount} aulas</strong> através do sistema de indicações.
+                    Para liberar este módulo completo ou todo o aplicativo, convide mais amigos ou torne-se assinante.
+                  </p>
+                  <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center', marginTop: 8 }}>
+                    <Link to="/embaixadores" className="btn sm">
+                      👥 Indicar Amigos
+                    </Link>
+                    <Link to="/perfil" className="btn ghost sm">
+                      ⭐ Fazer Assinatura
+                    </Link>
+                  </div>
+                </div>
+              ) : embedUrl ? (
                 <iframe
                   src={embedUrl}
                   title={currentLesson.title}
@@ -125,13 +158,15 @@ export default function Studies() {
                 </button>
               </div>
 
-              <button
-                type="button"
-                className={`btn sm ${isCurrentDone ? 'btn-done' : 'btn-complete'}`}
-                onClick={() => handleToggleComplete(currentLesson.id)}
-              >
-                {isCurrentDone ? '✓ Aula Concluída' : 'Marcar como Assistida'}
-              </button>
+              {!isCurrentLocked && (
+                <button
+                  type="button"
+                  className={`btn sm ${isCurrentDone ? 'btn-done' : 'btn-complete'}`}
+                  onClick={() => handleToggleComplete(currentLesson.id)}
+                >
+                  {isCurrentDone ? '✓ Aula Concluída' : 'Marcar como Assistida'}
+                </button>
+              )}
             </div>
 
             <div className="classroom-details-card">
@@ -149,6 +184,53 @@ export default function Studies() {
               )}
             </div>
           </div>
+
+          {/* Coluna Lateral: Grade de Módulos e Aulas */}
+          <div className="classroom-sidebar">
+            <h3 className="sidebar-title">Conteúdo do Curso</h3>
+            <div className="classroom-modules-accordion">
+              {selectedCourse.modules.map((mod, modIdx) => {
+                return (
+                  <div key={mod.id || modIdx} className="module-group">
+                    <div className="module-header">
+                      <h4>{mod.title}</h4>
+                      {mod.desc && <p className="module-sub">{mod.desc}</p>}
+                    </div>
+                    <div className="module-lessons-list">
+                      {mod.lessons.map((les) => {
+                        const lesIdx = allLessons.findIndex((l) => l.id === les.id);
+                        const isLocked = !entitlements.canAccessAll && (lesIdx >= entitlements.allowedLessonsCount);
+                        const isDone = isLessonCompleted(les.id);
+                        const isActive = les.id === currentLesson.id;
+
+                        return (
+                          <button
+                            key={les.id}
+                            type="button"
+                            className={`lesson-item-btn ${isActive ? 'active' : ''} ${isDone ? 'completed' : ''}`}
+                            onClick={() => {
+                              setActiveLessonId(les.id);
+                              window.scrollTo({ top: 0, behavior: 'smooth' });
+                            }}
+                          >
+                            <div className="lesson-item-left">
+                              <span className="lesson-check-icon">
+                                {isLocked ? '🔒' : isDone ? '✓' : isActive ? '▶' : '🎬'}
+                              </span>
+                              <span className="lesson-item-text" style={{ fontSize: 13, color: isLocked ? 'var(--muted)' : undefined }}>
+                                {les.title}
+                              </span>
+                            </div>
+                            {isLocked && <span style={{ fontSize: 11, color: '#f59e0b' }}>Bloqueada</span>}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -162,9 +244,16 @@ export default function Studies() {
       <div className="fade-in studies-under-construction-wrap">
         {/* Cabeçalho */}
         <section className="section">
-          <h2 style={{ fontFamily: 'var(--serif)', fontSize: 28, margin: '18px 0 4px' }}>
-            🎓 Estudos & Formações
-          </h2>
+          <div className="row-between" style={{ alignItems: 'center' }}>
+            <h2 style={{ fontFamily: 'var(--serif)', fontSize: 28, margin: '18px 0 4px' }}>
+              🎓 Estudos & Formações
+            </h2>
+            {entitlements.badge && (
+              <span className="sc-badge gold-badge" style={{ margin: '18px 0 4px' }}>
+                {entitlements.badge} — {entitlements.label}
+              </span>
+            )}
+          </div>
           <p className="sub">
             Área exclusiva de aulas em vídeo, trilhas de estudo e aprofundamento bíblico.
           </p>

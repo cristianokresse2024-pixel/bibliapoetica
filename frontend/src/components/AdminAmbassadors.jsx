@@ -38,25 +38,38 @@ export default function AdminAmbassadors({ user, onRefresh }) {
     }
   };
 
-  const handleQuickPreset = (count) => {
+  const handleQuickPreset = (count, status = 'active_subscriber') => {
     try {
       for (let i = 0; i < count; i++) {
         const idx = data.totalCount + i + 1;
+        const isFree = status === 'free_user';
         addReferralRecord(user, {
-          name: `Indicado Teste #${idx}`,
-          email: `teste_ref_${Date.now()}_${i}@exemplo.com`,
-          status: 'active_subscriber',
+          name: isFree ? `Amigo Convidado #${idx}` : `Assinante Ativo #${idx}`,
+          email: `teste_${isFree ? 'free' : 'sub'}_${Date.now()}_${i}@exemplo.com`,
+          status: status,
         });
       }
       toast({
         icon: '🚀',
         title: `${count} indicados adicionados!`,
-        desc: 'Métricas atualizadas.',
+        desc: status === 'free_user' ? 'Cadastros gratuitos adicionados.' : 'Assinantes ativos adicionados.',
       });
       if (onRefresh) onRefresh();
     } catch (err) {
       alert(err.message);
     }
+  };
+
+  const handleResetTests = () => {
+    if (!user) return;
+    const userId = user.id || user.email;
+    localStorage.removeItem(`viva_ambassador_v3_referrals_${userId}`);
+    toast({
+      icon: '🧹',
+      title: 'Indicações de teste resetadas!',
+      desc: 'Você pode começar um novo teste do zero.',
+    });
+    if (onRefresh) onRefresh();
   };
 
   const handleToggle = (id) => {
@@ -198,17 +211,23 @@ export default function AdminAmbassadors({ user, onRefresh }) {
             🧪 Simulação de Indicados e Teste da Meta de 10 Ativos
           </h4>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
-            <button type="button" className="btn ghost sm" onClick={() => handleQuickPreset(1)}>
-              +1 Ativo (1 Mês Grátis)
+            <button type="button" className="btn ghost sm" onClick={() => handleQuickPreset(4, 'free_user')}>
+              +4 Cadastros (🎁 4 Aulas)
             </button>
-            <button type="button" className="btn ghost sm" onClick={() => handleQuickPreset(3)}>
-              +3 Ativos (3 Meses Grátis)
+            <button type="button" className="btn ghost sm" onClick={() => handleQuickPreset(5, 'free_user')}>
+              +5 Cadastros (📚 1 Módulo)
             </button>
-            <button type="button" className="btn ghost sm" onClick={() => handleQuickPreset(5)}>
-              +5 Ativos (6 Meses Grátis)
+            <button type="button" className="btn ghost sm" onClick={() => handleQuickPreset(6, 'active_subscriber')}>
+              +6 Assinantes (🥉 1 Mês Grátis)
             </button>
-            <button type="button" className="btn ghost sm" onClick={() => handleQuickPreset(10)}>
-              +10 Ativos (👑 Conta 100% Grátis)
+            <button type="button" className="btn ghost sm" onClick={() => handleQuickPreset(7, 'active_subscriber')}>
+              +7 Assinantes (🥈 2 Meses Grátis)
+            </button>
+            <button type="button" className="btn ghost sm" onClick={() => handleQuickPreset(10, 'active_subscriber')}>
+              +10 Assinantes (👑 App 100% Grátis)
+            </button>
+            <button type="button" className="btn ghost sm" style={{ color: '#f87171', borderColor: 'rgba(239,68,68,0.3)' }} onClick={handleResetTests}>
+              🧹 Resetar Testes
             </button>
           </div>
 

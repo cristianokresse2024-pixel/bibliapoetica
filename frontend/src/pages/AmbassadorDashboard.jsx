@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import {
   getAmbassadorDashboardData,
@@ -55,10 +55,10 @@ export default function AmbassadorDashboard() {
         <section className="section member-hero">
           <div className="member-hero-glow" />
           <div className="member-hero-content">
-            <span className="sc-badge gold-badge">👑 Programa de Embaixadores</span>
-            <h1 className="member-hero-title">Indique Amigos e Ganhe o App Grátis</h1>
+            <span className="sc-badge gold-badge">👑 Programa de Embaixadores & Recompensas</span>
+            <h1 className="member-hero-title">Indique Amigos e Desbloqueie Recompensas</h1>
             <p className="member-hero-desc">
-              Conquiste meses de assinatura gratuita e torne-se um Embaixador Oficial com assinatura 100% gratuita ao manter 10 indicados ativos!
+              Desbloqueie aulas exclusivas, módulos inteiros, meses de assinatura gratuita e torne-se um Embaixador Oficial com o app 100% gratuito ao manter 10 indicados ativos!
             </p>
             <div style={{ marginTop: 18, display: 'flex', gap: 10, justifyContent: 'center' }}>
               <button className="btn" onClick={() => openAuthModal('register')}>
@@ -275,17 +275,17 @@ export default function AmbassadorDashboard() {
         <section className="section fade-in">
           <div className="secret-card" style={{ gap: 16 }}>
             <h3 style={{ margin: 0, fontSize: 18, color: '#fde68a' }}>
-              📜 Como Funciona o Programa de Embaixadores
+              📜 Como Funciona a Escala de Recompensas e Embaixadores
             </h3>
             <p className="muted" style={{ margin: 0, lineHeight: 1.6 }}>
-              Convide seus amigos para crescer na fé através do seu link exclusivo. Conforme seus indicados assinam o aplicativo, você desbloqueia meses de assinatura gratuita até o nível máximo de Embaixador:
+              Convide seus amigos e irmãos na fé através do seu link exclusivo. Conforme suas indicações avançam, você desbloqueia conteúdos especiais, meses de assinatura gratuita e a gratuidade permanente do aplicativo:
             </p>
 
             <div className="milestones-table-wrap">
               <table className="milestones-table">
                 <thead>
                   <tr>
-                    <th>Indicados Ativos</th>
+                    <th>Meta de Indicações</th>
                     <th>Nível</th>
                     <th>Benefício Conquistado</th>
                     <th>Status</th>
@@ -293,17 +293,23 @@ export default function AmbassadorDashboard() {
                 </thead>
                 <tbody>
                   {MILESTONES.map((m) => {
-                    const isReached = data.activeCount >= m.minActive;
+                    const isReached = m.minActive <= 5 
+                      ? (data.activeCount >= m.minActive || data.totalCount >= m.minActive)
+                      : data.activeCount >= m.minActive;
+                    const diff = m.minActive <= 5 
+                      ? Math.max(0, m.minActive - Math.max(data.activeCount, data.totalCount))
+                      : Math.max(0, m.minActive - data.activeCount);
+
                     return (
                       <tr key={m.minActive} className={isReached ? 'reached' : ''}>
-                        <td><strong>{m.minActive} assinante(s)</strong></td>
+                        <td><strong>{m.minActive} {m.minActive <= 5 ? 'indicações' : 'assinantes ativos'}</strong></td>
                         <td><span className="badge-tag">{m.badge}</span></td>
                         <td><strong style={{ color: '#fde68a' }}>{m.benefit}</strong></td>
                         <td>
                           {isReached ? (
                             <span className="status-ok">✅ Desbloqueado</span>
                           ) : (
-                            <span className="status-lock">🔒 Falta {m.minActive - data.activeCount}</span>
+                            <span className="status-lock">🔒 Falta {diff}</span>
                           )}
                         </td>
                       </tr>
@@ -314,9 +320,9 @@ export default function AmbassadorDashboard() {
             </div>
 
             <div className="rules-notice-box" style={{ background: 'rgba(251,191,36,.06)', border: '1px solid rgba(251,191,36,.2)', borderRadius: 10, padding: 14 }}>
-              <h4 style={{ margin: '0 0 6px', color: '#fbbf24', fontSize: 14 }}>🛡️ Regra de Manutenção dos 10 Ativos:</h4>
+              <h4 style={{ margin: '0 0 6px', color: '#fbbf24', fontSize: 14 }}>🛡️ Regra de Manutenção dos 10 Assinantes Ativos:</h4>
               <p className="muted" style={{ margin: 0, fontSize: 13, lineHeight: 1.5 }}>
-                Ao alcançar 10 indicados ativos, sua conta ganha o título de <strong>👑 Embaixador Oficial</strong> e sua assinatura permanece <strong>100% gratuita</strong>. Caso algum indicado cancele e você fique com 9 ativos, você ganha <strong>30 dias de tolerância</strong> para convidar mais 1 pessoa antes de perder a gratuidade.
+                Ao alcançar 10 indicados ativos assinantes, você conquista o título de <strong>👑 Embaixador Oficial</strong> e o seu aplicativo permanece <strong>100% gratuito</strong> enquanto essas 10 pessoas mantiverem suas assinaturas ativas. Caso algum indicado cancele e você fique temporariamente com 9 ativos, o sistema concede <strong>30 dias de tolerância</strong> para você convidar outro assinante antes de perder o benefício.
               </p>
             </div>
           </div>
