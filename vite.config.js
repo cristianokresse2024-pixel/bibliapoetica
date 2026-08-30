@@ -27,38 +27,52 @@ for (const envPath of ['api/.env', '.env.local', '.env']) {
   } catch {}
 }
 
-// Em desenvolvimento, reusamos EXATAMENTE o mesmo handler serverless de produção
-// (api/askIAViva.js), com um pequeno adaptador que dá ao `res` do Node os métodos
-// .status()/.json() que o handler espera. Assim dev == produção (mesma validação
-// e mesma proteção anti-abuso), sem duplicar lógica.
+// Em desenvolvimento, roteamos os handlers serverless de produção da pasta api/
 function localApiPlugin() {
   return {
     name: 'local-api-plugin',
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
-        if (!req.url?.startsWith('/api/askIAViva')) return next();
+        if (!req.url?.startsWith('/api/')) return next();
 
-        // adaptador estilo Express/Vercel
+        const urlObj = new URL(req.url, 'http://localhost');
+        const pathname = urlObj.pathname; // ex: /api/auth/register
+
+        // Mapeamento de rotas para arquivos em api/
+        let filePath = path.resolve(repoRoot, '.' + pathname + '.js');
+        if (!fs.existsSync(filePath)) {
+          filePath = path.resolve(repoRoot, '.' + pathname + '/index.js');
+        }
+
+        if (!fs.existsSync(filePath)) {
+          return next();
+        }
+
+        // Adaptador estilo Express/Vercel
         res.status = (code) => { res.statusCode = code; return res; };
         res.json = (obj) => {
-          if (!res.getHeader('Content-Type')) res.setHeader('Content-Type', 'application/json');
+          if (!res.getHeader('Content-Type')) res.setHeader('Content-Type', 'application/json; charset=utf-8');
           res.end(JSON.stringify(obj));
           return res;
         };
 
-        // coletar corpo JSON
+        // Query parameters
+        req.query = Object.fromEntries(urlObj.searchParams.entries());
+
+        // Coletar corpo JSON
         let body = '';
         req.on('data', (c) => { body += c; });
         await new Promise((r) => req.on('end', r));
         try { req.body = body ? JSON.parse(body) : {}; } catch { req.body = {}; }
 
         try {
-          const { default: handler } = await import('./api/askIAViva.js');
+          const { default: handler } = await import(filePath + '?t=' + Date.now());
           await handler(req, res);
         } catch (err) {
+          console.error(`[Local API Error] ${pathname}:`, err);
           res.statusCode = 500;
           res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify({ error: 'A IA Viva está indisponível no momento.' }));
+          res.end(JSON.stringify({ error: err.message || 'Erro interno no servidor local.' }));
         }
       });
     },

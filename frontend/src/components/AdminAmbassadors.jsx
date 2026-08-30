@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   getAmbassadorDashboardData,
   getOwnerFinancialOverview,
@@ -12,10 +12,35 @@ export default function AdminAmbassadors({ user, onRefresh }) {
   const [simName, setSimName] = useState('');
   const [simEmail, setSimEmail] = useState('');
   const [simStatus, setSimStatus] = useState('active_subscriber');
+  const [cloudUsers, setCloudUsers] = useState([]);
+  const [cloudTotals, setCloudTotals] = useState(null);
+  const [loadingCloud, setLoadingCloud] = useState(false);
   const toast = useToast();
 
   const data = getAmbassadorDashboardData(user);
-  const ownerOverview = getOwnerFinancialOverview();
+  const localOverview = getOwnerFinancialOverview();
+
+  const fetchCloudUsers = async () => {
+    try {
+      setLoadingCloud(true);
+      const res = await fetch(`/api/admin/users?email=${encodeURIComponent(user?.email || '')}`);
+      if (res.ok) {
+        const json = await res.json();
+        if (json.ok) {
+          setCloudUsers(json.users || []);
+          setCloudTotals(json.totals || null);
+        }
+      }
+    } catch {
+      // Usa dados locais se offline
+    } finally {
+      setLoadingCloud(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCloudUsers();
+  }, [user]);
 
   const handleSimulateAdd = (e) => {
     e.preventDefault();
@@ -33,6 +58,7 @@ export default function AdminAmbassadors({ user, onRefresh }) {
         desc: `Status: ${simStatus === 'active_subscriber' ? 'Assinante Ativo' : 'Cadastro Gratuito'}`,
       });
       if (onRefresh) onRefresh();
+      fetchCloudUsers();
     } catch (err) {
       alert(err.message);
     }
@@ -55,6 +81,7 @@ export default function AdminAmbassadors({ user, onRefresh }) {
         desc: status === 'free_user' ? 'Cadastros gratuitos adicionados.' : 'Assinantes ativos adicionados.',
       });
       if (onRefresh) onRefresh();
+      fetchCloudUsers();
     } catch (err) {
       alert(err.message);
     }
@@ -70,18 +97,31 @@ export default function AdminAmbassadors({ user, onRefresh }) {
       desc: 'Você pode começar um novo teste do zero.',
     });
     if (onRefresh) onRefresh();
+    fetchCloudUsers();
   };
 
   const handleToggle = (id) => {
     toggleReferralStatusRecord(user, id);
     if (onRefresh) onRefresh();
+    fetchCloudUsers();
   };
+
+  // Consolidação de métricas: prioriza nuvem, fallback para local
+  const totals = cloudTotals || {
+    totalUsers: localOverview.totalSubscribers + localOverview.totalFreeUsers,
+    totalSubscribers: localOverview.totalSubscribers,
+    totalFreeUsers: localOverview.totalFreeUsers,
+    totalAmbassadors: data.activeCount >= 10 ? 1 : 0,
+    formattedRevenue: localOverview.formattedRevenue,
+  };
+
+  const displayUsers = cloudUsers.length > 0 ? cloudUsers : localOverview.subscriberList;
 
   return (
     <div className="admin-ambassador-panel">
       {/* Cabeçalho do Proprietário */}
       <div className="admin-head">
-        <div className="row-between" style={{ alignItems: 'center' }}>
+        <div className="row-between" style={{ alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
           <div>
             <h3 style={{ margin: 0, color: '#fde68a', fontSize: 18 }}>
               👑 Painel Executivo do Dono do Aplicativo
@@ -90,45 +130,56 @@ export default function AdminAmbassadors({ user, onRefresh }) {
               Logado como: <strong>{user?.email}</strong> (Acesso Total)
             </span>
           </div>
-          <span className="sc-badge gold-badge">Proprietário Oficial</span>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <button
+              type="button"
+              className="btn ghost sm"
+              onClick={fetchCloudUsers}
+              disabled={loadingCloud}
+              style={{ fontSize: 12 }}
+            >
+              {loadingCloud ? '🔄 Sincronizando...' : '🔄 Atualizar Nuvem'}
+            </button>
+            <span className="sc-badge gold-badge">Banco Supabase Conectado</span>
+          </div>
         </div>
         <p className="muted" style={{ margin: '6px 0 0', fontSize: 13 }}>
-          Gestão centralizada de faturamento recorrente, assinantes ativos, usuários gratuitos e controle do Programa de Embaixadores.
+          Gestão centralizada em tempo real: todos os cadastros, leituras de capítulos, progresso espiritual e assinantes ativos.
         </p>
       </div>
 
-      {/* 4 Cards de Métricas Principais de Faturamento */}
+      {/* 4 Cards de Métricas Principais de Faturamento & Usuários */}
       <div className="admin-metrics-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10, marginTop: 14 }}>
         <div className="admin-metric-card" style={{ background: 'linear-gradient(135deg, rgba(251,191,36,.12), rgba(245,158,11,.05))', border: '1px solid rgba(251,191,36,.3)' }}>
-          <span className="lbl" style={{ color: '#fbbf24' }}>💰 Faturamento do Mês</span>
+          <span className="lbl" style={{ color: '#fbbf24' }}>💰 Faturamento Mensal</span>
           <div className="val" style={{ color: '#fbbf24', fontSize: 24, fontWeight: 700 }}>
-            {ownerOverview.formattedRevenue}
+            {totals.formattedRevenue}
           </div>
-          <small className="muted" style={{ fontSize: 11 }}>{ownerOverview.totalSubscribers} assinantes x R$ 29,90</small>
+          <small className="muted" style={{ fontSize: 11 }}>{totals.totalSubscribers} assinantes x R$ 29,90</small>
         </div>
 
         <div className="admin-metric-card">
           <span className="lbl">⭐ Assinantes Pagantes</span>
           <div className="val" style={{ color: '#4ade80', fontSize: 24, fontWeight: 700 }}>
-            {ownerOverview.totalSubscribers}
+            {totals.totalSubscribers}
           </div>
-          <small className="muted" style={{ fontSize: 11 }}>Pagamento ativo R$ 29,90</small>
+          <small className="muted" style={{ fontSize: 11 }}>Assinatura R$ 29,90 ativa</small>
         </div>
 
         <div className="admin-metric-card">
-          <span className="lbl">👥 Usuários Gratuitos</span>
-          <div className="val" style={{ color: '#94a3b8', fontSize: 24, fontWeight: 700 }}>
-            {ownerOverview.totalFreeUsers}
+          <span className="lbl">👥 Total de Usuários Cadastrados</span>
+          <div className="val" style={{ color: '#60a5fa', fontSize: 24, fontWeight: 700 }}>
+            {totals.totalUsers}
           </div>
-          <small className="muted" style={{ fontSize: 11 }}>Cadastros na base</small>
+          <small className="muted" style={{ fontSize: 11 }}>Registrados no banco de dados</small>
         </div>
 
         <div className="admin-metric-card">
-          <span className="lbl">👑 Embaixadores (Grátis 10+)</span>
+          <span className="lbl">👑 Embaixadores Oficiais</span>
           <div className="val" style={{ color: '#c084fc', fontSize: 24, fontWeight: 700 }}>
-            {data.activeCount >= 10 ? 1 : 0}
+            {totals.totalAmbassadors}
           </div>
-          <small className="muted" style={{ fontSize: 11 }}>Mantendo 10 ativos</small>
+          <small className="muted" style={{ fontSize: 11 }}>10+ indicados ativos (100% grátis)</small>
         </div>
       </div>
 
@@ -139,7 +190,7 @@ export default function AdminAmbassadors({ user, onRefresh }) {
           className={`btn sm ${activeTab === 'overview' ? '' : 'ghost'}`}
           onClick={() => setActiveTab('overview')}
         >
-          📋 Gestão de Assinantes
+          📋 Diretório de Usuários ({displayUsers.length})
         </button>
         <button
           type="button"
@@ -152,49 +203,64 @@ export default function AdminAmbassadors({ user, onRefresh }) {
 
       {activeTab === 'overview' && (
         <div className="admin-section-box">
-          <h4 style={{ margin: '0 0 10px', color: '#fde68a', fontSize: 14 }}>
-            👥 Lista Completa de Usuários e Assinaturas:
-          </h4>
-          {ownerOverview.subscriberList.length === 0 ? (
-            <p className="muted" style={{ fontSize: 13 }}>Nenhum usuário cadastrado na base local.</p>
+          <div className="row-between" style={{ alignItems: 'center', marginBottom: 12 }}>
+            <h4 style={{ margin: 0, color: '#fde68a', fontSize: 14 }}>
+              👥 Todos os Usuários Registrados & Progresso Espiritual:
+            </h4>
+            <span className="muted" style={{ fontSize: 12 }}>
+              {displayUsers.length} usuário(s) encontrados
+            </span>
+          </div>
+
+          {displayUsers.length === 0 ? (
+            <p className="muted" style={{ fontSize: 13, textAlign: 'center', padding: '20px 0' }}>
+              Nenhum usuário cadastrado no momento. Quando alguém criar conta, aparecerá aqui instantaneamente!
+            </p>
           ) : (
-            <div className="admin-table-wrap" style={{ overflowX: 'auto' }}>
-              <table className="admin-table" style={{ width: '100%', fontSize: 13 }}>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5, textAlign: 'left' }}>
                 <thead>
-                  <tr>
-                    <th>Usuário / E-mail</th>
-                    <th>Plano</th>
-                    <th>Status</th>
-                    <th>Mensalidade</th>
-                    <th>Indicado por</th>
+                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,.1)', color: 'var(--muted)' }}>
+                    <th style={{ padding: '8px 6px' }}>Usuário / E-mail</th>
+                    <th style={{ padding: '8px 6px' }}>Plano / Status</th>
+                    <th style={{ padding: '8px 6px' }}>Capítulos Lidos</th>
+                    <th style={{ padding: '8px 6px' }}>XP / Nível</th>
+                    <th style={{ padding: '8px 6px' }}>Origem / Indicador</th>
+                    <th style={{ padding: '8px 6px' }}>Cadastro</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {ownerOverview.subscriberList.map((sub) => (
-                    <tr key={sub.id}>
-                      <td>
-                        <strong>{sub.name}</strong>
-                        <div className="muted" style={{ fontSize: 11 }}>{sub.email}</div>
+                  {displayUsers.map((u, i) => (
+                    <tr key={u.id || i} style={{ borderBottom: '1px solid rgba(255,255,255,.05)' }}>
+                      <td style={{ padding: '8px 6px' }}>
+                        <div style={{ fontWeight: 600, color: '#fff' }}>{u.name}</div>
+                        <div className="muted" style={{ fontSize: 11 }}>{u.email}</div>
                       </td>
-                      <td>
-                        <span style={{ fontSize: 12, color: sub.plan.includes('VIP') ? '#fbbf24' : sub.plan.includes('Assinante') ? '#4ade80' : '#94a3b8' }}>
-                          {sub.plan}
+                      <td style={{ padding: '8px 6px' }}>
+                        <span
+                          className={`sc-badge ${
+                            u.plan?.includes('VIP') || u.plan?.includes('👑')
+                              ? 'gold-badge'
+                              : u.plan?.includes('Assinante') || u.plan === 'subscriber'
+                              ? 'gold-badge'
+                              : ''
+                          }`}
+                          style={{ fontSize: 11, padding: '2px 8px' }}
+                        >
+                          {u.plan}
                         </span>
                       </td>
-                      <td>
-                        <span className={`status-pill ${sub.status === 'Ativo' ? 'active_subscriber' : 'free_user'}`}>
-                          {sub.status === 'Ativo' ? '🟢 Ativo' : '⚪ Gratuito'}
-                        </span>
+                      <td style={{ padding: '8px 6px' }}>
+                        <strong style={{ color: '#fde68a' }}>{u.readCount ?? 0}</strong> caps
                       </td>
-                      <td>
-                        {sub.amountMonthly > 0 ? (
-                          <strong style={{ color: '#4ade80' }}>R$ 29,90/mês</strong>
-                        ) : (
-                          <span className="muted">R$ 0,00</span>
-                        )}
+                      <td style={{ padding: '8px 6px' }}>
+                        <span style={{ color: '#c084fc' }}>Nív. {u.level ?? 1}</span> ({u.xp ?? 0} XP)
                       </td>
-                      <td className="muted" style={{ fontSize: 11 }}>
-                        {sub.referrerCode}
+                      <td style={{ padding: '8px 6px' }}>
+                        <span className="muted">{u.referredBy || 'Direto'}</span>
+                      </td>
+                      <td style={{ padding: '8px 6px' }} className="muted">
+                        {u.createdAt ? new Date(u.createdAt).toLocaleDateString('pt-BR') : 'Hoje'}
                       </td>
                     </tr>
                   ))}

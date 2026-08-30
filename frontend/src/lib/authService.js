@@ -1,7 +1,9 @@
-﻿import { isVipEmail } from '../config/vipList.js';
+import { isVipEmail } from '../config/vipList.js';
+import { hydrateProgressFromCloud, triggerDebouncedCloudSync } from './progress.js';
 
 const STORAGE_USERS_KEY = 'viva_users_v1';
 const STORAGE_SESSION_KEY = 'viva_session_v1';
+const REFERRED_BY_KEY = 'viva_referred_by_code';
 
 function getStoredUsers() {
   try {
@@ -25,7 +27,7 @@ export function getCurrentSession() {
     const session = localStorage.getItem(STORAGE_SESSION_KEY);
     if (!session) return null;
     const user = JSON.parse(session);
-    
+
     // Auto-atualização de VIP se o e-mail estiver na lista VIP
     if (isVipEmail(user.email) && user.plan !== 'vip_lifetime') {
       user.plan = 'vip_lifetime';
@@ -51,7 +53,7 @@ export function saveSession(user) {
 }
 
 /**
- * Cadastrar novo usuário
+ * Cadastrar novo usuário com sincronização instantânea no banco de dados Supabase
  */
 export async function registerUser({ name, email, password }) {
   if (!name || name.trim().length < 2) {
@@ -65,34 +67,73 @@ export async function registerUser({ name, email, password }) {
   }
 
   const cleanEmail = email.trim().toLowerCase();
-  const users = getStoredUsers();
+  const savedRefCode = localStorage.getItem(REFERRED_BY_KEY) || null;
 
-  const existing = users.find((u) => u.email.toLowerCase() === cleanEmail);
-  if (existing) {
-    throw new Error('Este e-mail já está cadastrado. Faça login ou use outro e-mail.');
+  try {
+    const res = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: name.trim(),
+        email: cleanEmail,
+        password,
+        referralCode: savedRefCode,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || 'Falha ao registrar usuário no servidor.');
+    }
+
+    const registeredUser = data.user;
+
+    // Cache local e sessão
+    saveSession(registeredUser);
+
+    const users = getStoredUsers().filter((u) => u.email.toLowerCase() !== cleanEmail);
+    users.push(registeredUser);
+    saveUsers(users);
+
+    // Dispara sincronização inicial do progresso para a nuvem
+    setTimeout(() => {
+      triggerDebouncedCloudSync();
+    }, 500);
+
+    return registeredUser;
+  } catch (error) {
+    // Se a API falhar por problemas de rede, faz o registro local seguro como fallback
+    console.warn('[Register] API remota inacessível, utilizando fallback local:', error.message);
+
+    const users = getStoredUsers();
+    const existing = users.find((u) => u.email.toLowerCase() === cleanEmail);
+    if (existing) {
+      throw new Error('Este e-mail já está cadastrado. Faça login para continuar.');
+    }
+
+    const isVip = isVipEmail(cleanEmail);
+    const fallbackUser = {
+      id: 'usr_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+      name: name.trim(),
+      email: cleanEmail,
+      plan: isVip ? 'vip_lifetime' : 'free',
+      role: isVip ? 'admin' : 'user',
+      referredBy: savedRefCode,
+      createdAt: new Date().toISOString(),
+      lastLoginAt: new Date().toISOString(),
+    };
+
+    users.push(fallbackUser);
+    saveUsers(users);
+    saveSession(fallbackUser);
+
+    return fallbackUser;
   }
-
-  const isVip = isVipEmail(cleanEmail);
-  const newUser = {
-    id: 'usr_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
-    name: name.trim(),
-    email: cleanEmail,
-    password: password, // Em produção com Supabase/backend é enviado via SSL com hash bcrypt
-    plan: isVip ? 'vip_lifetime' : 'free',
-    role: isVip ? 'admin' : 'user',
-    createdAt: new Date().toISOString(),
-    lastLoginAt: new Date().toISOString(),
-  };
-
-  users.push(newUser);
-  saveUsers(users);
-  saveSession(newUser);
-
-  return newUser;
 }
 
 /**
- * Realizar login
+ * Realizar login com recuperação instantânea de dados e progresso do Supabase
  */
 export async function loginUser({ email, password }) {
   if (!email || !email.includes('@')) {
@@ -103,28 +144,61 @@ export async function loginUser({ email, password }) {
   }
 
   const cleanEmail = email.trim().toLowerCase();
-  const users = getStoredUsers();
 
-  const user = users.find((u) => u.email.toLowerCase() === cleanEmail);
-  if (!user) {
-    throw new Error('Usuário não encontrado. Verifique seu e-mail ou crie uma conta.');
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: cleanEmail, password }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || 'Credenciais inválidas.');
+    }
+
+    const loggedUser = data.user;
+
+    // 1. Salva a sessão ativa
+    saveSession(loggedUser);
+
+    // 2. Se houver progresso na nuvem, restaura imediatamente para o dispositivo
+    if (data.progress) {
+      hydrateProgressFromCloud(data.progress);
+    }
+
+    // 3. Atualiza cache local de usuários
+    const users = getStoredUsers().filter((u) => u.email.toLowerCase() !== cleanEmail);
+    users.push(loggedUser);
+    saveUsers(users);
+
+    return loggedUser;
+  } catch (error) {
+    // Fallback local se estiver offline
+    console.warn('[Login] API remota inacessível, consultando base local:', error.message);
+
+    const users = getStoredUsers();
+    const user = users.find((u) => u.email.toLowerCase() === cleanEmail);
+    if (!user) {
+      throw new Error('Usuário não encontrado. Verifique seu e-mail ou crie uma conta.');
+    }
+
+    if (user.password && user.password !== password) {
+      throw new Error('Senha incorreta. Tente novamente.');
+    }
+
+    if (isVipEmail(cleanEmail)) {
+      user.plan = 'vip_lifetime';
+      user.role = 'admin';
+    }
+
+    user.lastLoginAt = new Date().toISOString();
+    saveUsers(users);
+    saveSession(user);
+
+    return user;
   }
-
-  if (user.password !== password) {
-    throw new Error('Senha incorreta. Tente novamente.');
-  }
-
-  // Verifica se o e-mail virou VIP recentemente
-  if (isVipEmail(cleanEmail)) {
-    user.plan = 'vip_lifetime';
-    user.role = 'admin';
-  }
-
-  user.lastLoginAt = new Date().toISOString();
-  saveUsers(users);
-  saveSession(user);
-
-  return user;
 }
 
 /**
