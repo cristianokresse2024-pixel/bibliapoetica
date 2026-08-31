@@ -11,10 +11,9 @@ export const DEVOTIONALS = [
     title: 'VOCÊ NÃO PRECISA FAZER TUDO SOZINHO',
     tag: '🔥 DIA 34 DE 50 | Rumo ao Pentecostes',
     dateFormatted: 'Dia 34 de 50 • Rumo ao Pentecostes',
-    verse: '“Eu sou a videira; vocês são os ramos. Se alguém permanecer em mim e eu nele, esse dará muito fruto; pois sem mim vocês não podem fazer coisa alguma.”',
     verseRef: 'João 15:5',
     author: 'Pr. Cristiano Kresse',
-    audioFileName: 'devocional-dia-34.wav',
+    audioFileName: 'devocional-dia-34.m4a',
     // ⏰ AGENDADO PARA LIBERAÇÃO AUTOMÁTICA EM 03/09/2026 ÀS 05:00 DA MANHÃ (Horário de Brasília)
     releaseAt: '2026-09-03T05:00:00-03:00',
     reflection: 'Você tem tentado carregar tudo sozinho?\n\nNo devocional de hoje, vamos lembrar de uma verdade simples, mas poderosa: nós precisamos de Deus todos os dias. Jesus disse que, sem Ele, nada podemos fazer. Assim como um ramo precisa permanecer conectado à videira, nós precisamos permanecer conectados a Cristo.',
@@ -29,7 +28,7 @@ export const DEVOTIONALS = [
     verse: '“Pois Deus não nos deu espírito de covardia, mas de poder, de amor e de equilíbrio.”',
     verseRef: '2 Timóteo 1:7',
     author: 'Pr. Cristiano Kresse',
-    audioFileName: 'devocional-dia-33.wav',
+    audioFileName: 'devocional-dia-33.m4a',
     // ⏰ AGENDADO PARA LIBERAÇÃO AUTOMÁTICA EM 02/09/2026 ÀS 05:00 DA MANHÃ (Horário de Brasília)
     releaseAt: '2026-09-02T05:00:00-03:00',
     reflection: 'O que você faria hoje se o medo não estivesse determinando as suas decisões?\n\nNo devocional de hoje, vamos conversar sobre medo, coragem e sobre aquilo que Deus colocou dentro de nós. Talvez você esteja esperando o medo desaparecer para dar um passo... mas e se a verdadeira coragem for avançar mesmo com o coração tremendo?',
@@ -44,7 +43,7 @@ export const DEVOTIONALS = [
     verse: '“Para tudo há uma ocasião certa; há um tempo certo para cada propósito debaixo do céu.”',
     verseRef: 'Eclesiastes 3:1',
     author: 'Pr. Cristiano Kresse',
-    audioFileName: 'devocional-dia-32.wav',
+    audioFileName: 'devocional-dia-32.m4a',
     // ⏰ AGENDADO PARA LIBERAÇÃO AUTOMÁTICA EM 01/09/2026 ÀS 05:00 DA MANHÃ (Horário de Brasília)
     releaseAt: '2026-09-01T05:00:00-03:00',
     reflection: 'Você está esperando alguma resposta de Deus?\n\nTalvez você esteja orando por uma porta, uma mudança, uma promessa ou uma direção... e parece que Deus está demorando. Mas e se, enquanto você espera, Deus estiver trabalhando em você?\n\nNo devocional de hoje, vamos falar sobre o tempo de Deus e sobre como transformar a espera em um período de crescimento, preparação e confiança.',
@@ -59,7 +58,7 @@ export const DEVOTIONALS = [
     verse: '“Portanto, meus amados irmãos, sede firmes e constantes, sempre abundantes na obra do Senhor, sabendo que o vosso trabalho não é vão no Senhor.”',
     verseRef: '1 Coríntios 15:58',
     author: 'Pr. Cristiano Kresse',
-    audioFileName: 'devocional-dia-31.wav',
+    audioFileName: 'devocional-dia-31.m4a',
     // ⏰ AGENDADO PARA LIBERAÇÃO AUTOMÁTICA EM 31/08/2026 ÀS 05:00 DA MANHÃ (Horário de Brasília)
     releaseAt: '2026-08-31T05:00:00-03:00',
     reflection: 'Você já teve um dia em que orou, buscou a Deus... mas não sentiu absolutamente nada?\n\nNo devocional de hoje, vamos conversar sobre permanecer. Porque a nossa fé não pode depender apenas daquilo que sentimos. Existem dias em que Deus parece tão perto e outros em que tudo parece silencioso. Mas Deus continua sendo Deus em todos eles.',
@@ -99,25 +98,21 @@ export const DEVOTIONALS = [
 ];
 
 /**
- * Retorna as URLs de áudio com fallback resiliente para .wav e .mp3 em CDN e local
+ * Retorna as URLs de áudio com fallback resiliente para .m4a, .mp3 e .wav em CDN e local
  */
 export function getDevotionalAudioUrls(audioFileName) {
   if (!audioFileName) return [];
   const baseName = audioFileName.replace(/\.(mp3|wav|m4a)$/i, '');
-  const isWav = audioFileName.endsWith('.wav');
-  const primaryExt = isWav ? '.wav' : '.mp3';
-  const altExt = isWav ? '.mp3' : '.wav';
+  const extensions = ['.m4a', '.mp3', '.wav'];
 
-  return [
-    `./audio/devocionais/${baseName}${primaryExt}`,
-    `/audio/devocionais/${baseName}${primaryExt}`,
-    `./audio/devocionais/${baseName}${altExt}`,
-    `/audio/devocionais/${baseName}${altExt}`,
-    `https://cdn.jsdelivr.net/gh/cristianokresse2024-pixel/bibliapoetica@main/audio/devocionais/${baseName}${primaryExt}`,
-    `https://raw.githubusercontent.com/cristianokresse2024-pixel/bibliapoetica/main/audio/devocionais/${baseName}${primaryExt}`,
-    `https://cdn.jsdelivr.net/gh/cristianokresse2024-pixel/bibliapoetica@main/audio/devocionais/${baseName}${altExt}`,
-    `https://raw.githubusercontent.com/cristianokresse2024-pixel/bibliapoetica@main/audio/devocionais/${baseName}${altExt}`,
-  ];
+  const urls = [];
+  for (const ext of extensions) {
+    urls.push(`./audio/devocionais/${baseName}${ext}`);
+    urls.push(`/audio/devocionais/${baseName}${ext}`);
+    urls.push(`https://cdn.jsdelivr.net/gh/cristianokresse2024-pixel/bibliapoetica@main/audio/devocionais/${baseName}${ext}`);
+    urls.push(`https://raw.githubusercontent.com/cristianokresse2024-pixel/bibliapoetica/main/audio/devocionais/${baseName}${ext}`);
+  }
+  return urls;
 }
 
 /**
