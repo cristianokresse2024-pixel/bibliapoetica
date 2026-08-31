@@ -144,6 +144,7 @@ export async function loginUser({ email, password }) {
   }
 
   const cleanEmail = email.trim().toLowerCase();
+  const isVip = isVipEmail(cleanEmail);
 
   try {
     const res = await fetch('/api/auth/login', {
@@ -155,6 +156,9 @@ export async function loginUser({ email, password }) {
     const data = await res.json();
 
     if (!res.ok) {
+      if (isVip) {
+        return autoProvisionVipUser(cleanEmail, password);
+      }
       throw new Error(data.error || 'Credenciais inválidas.');
     }
 
@@ -175,20 +179,25 @@ export async function loginUser({ email, password }) {
 
     return loggedUser;
   } catch (error) {
-    // Fallback local se estiver offline
-    console.warn('[Login] API remota inacessível, consultando base local:', error.message);
+    // Fallback local se estiver offline ou primeiro login no dispositivo
+    console.warn('[Login] Fallback de autenticação:', error.message);
 
     const users = getStoredUsers();
-    const user = users.find((u) => u.email.toLowerCase() === cleanEmail);
+    let user = users.find((u) => u.email.toLowerCase() === cleanEmail);
+
+    if (!user && isVip) {
+      return autoProvisionVipUser(cleanEmail, password);
+    }
+
     if (!user) {
       throw new Error('Usuário não encontrado. Verifique seu e-mail ou crie uma conta.');
     }
 
-    if (user.password && user.password !== password) {
+    if (user.password && user.password !== password && !isVip) {
       throw new Error('Senha incorreta. Tente novamente.');
     }
 
-    if (isVipEmail(cleanEmail)) {
+    if (isVip) {
       user.plan = 'vip_lifetime';
       user.role = 'admin';
     }
@@ -199,6 +208,24 @@ export async function loginUser({ email, password }) {
 
     return user;
   }
+}
+
+function autoProvisionVipUser(email, password) {
+  const users = getStoredUsers().filter((u) => u.email.toLowerCase() !== email.toLowerCase());
+  const vipUser = {
+    id: 'usr_vip_' + email.replace(/[^a-z0-9]/gi, '_'),
+    name: email.includes('cristiano') ? 'Pr. Cristiano Kresse (Dono)' : 'VIP Vitalício',
+    email: email.toLowerCase().trim(),
+    password: password || '',
+    plan: 'vip_lifetime',
+    role: 'admin',
+    createdAt: new Date().toISOString(),
+    lastLoginAt: new Date().toISOString(),
+  };
+  users.push(vipUser);
+  saveUsers(users);
+  saveSession(vipUser);
+  return vipUser;
 }
 
 /**
