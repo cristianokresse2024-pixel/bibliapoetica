@@ -8,7 +8,7 @@ import {
   getUserByEmail,
   getUserProgress,
   supabaseQuery,
-} from '../lib/SupabaseClient.js';
+} from '../../server-lib/SupabaseClient.js';
 
 const ALLOWED_ORIGINS = (
   process.env.ALLOWED_ORIGINS ||

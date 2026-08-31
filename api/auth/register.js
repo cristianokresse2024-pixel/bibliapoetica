@@ -1,4 +1,4 @@
-﻿// =============================================================================
+// =============================================================================
 // ENDPOINT SERVERLESS — CADASTRO CENTRALIZADO DE USUÁRIOS NO SUPABASE
 // -----------------------------------------------------------------------------
 // Rota: POST /api/auth/register
@@ -8,7 +8,7 @@ import {
   getUserByEmail,
   upsertUserProfile,
   supabaseQuery,
-} from '../lib/SupabaseClient.js';
+} from '../../server-lib/SupabaseClient.js';
 
 const ALLOWED_ORIGINS = (
   process.env.ALLOWED_ORIGINS ||

@@ -1,4 +1,4 @@
-﻿// =============================================================================
+// =============================================================================
 // ENDPOINT SERVERLESS — DIRETÓRIO CENTRAL DE USUÁRIOS (EXCLUSIVO PROPRIETÁRIO)
 // -----------------------------------------------------------------------------
 // Rota: GET /api/admin/users
@@ -7,8 +7,8 @@
 import {
   getAllUsersWithStats,
   supabaseQuery,
-} from '../lib/SupabaseClient.js';
-import { AMBASSADOR_CONFIG } from '../lib/AmbassadorEngine.js';
+} from '../../server-lib/SupabaseClient.js';
+import { AMBASSADOR_CONFIG } from '../../server-lib/AmbassadorEngine.js';
 
 const ALLOWED_ORIGINS = (
   process.env.ALLOWED_ORIGINS ||

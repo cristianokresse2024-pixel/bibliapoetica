@@ -1,5 +1,5 @@
-import { generateAnswer } from './lib/AIService.js';
-import { retrieveContext } from './lib/KnowledgeRetriever.js';
+import { generateAnswer } from '../server-lib/AIService.js';
+import { retrieveContext } from '../server-lib/KnowledgeRetriever.js';
 
 // =============================================================================
 // Endpoint serverless da IA Viva (Vercel) — chave do Groq protegida no backend.

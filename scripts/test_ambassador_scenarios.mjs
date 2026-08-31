@@ -9,7 +9,7 @@ import {
   validateReferralAttribution,
   AMBASSADOR_CONFIG,
   MILESTONES,
-} from '../api/lib/AmbassadorEngine.js';
+} from '../server-lib/AmbassadorEngine.js';
 
 let passed = 0;
 let failed = 0;
