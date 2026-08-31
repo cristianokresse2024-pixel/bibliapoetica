@@ -125,11 +125,12 @@ export function getDevotionalAudioUrls(audioFileName) {
  * Ordenados do mais recente para o mais antigo.
  */
 export function getReleasedDevotionals() {
-  const now = new Date();
+  const nowTs = Date.now();
   return DEVOTIONALS.filter((d) => {
     if (!d.releaseAt) return true;
-    return new Date(d.releaseAt) <= now;
-  }).sort((a, b) => new Date(b.releaseAt) - new Date(a.releaseAt));
+    const releaseTs = new Date(d.releaseAt).getTime();
+    return releaseTs <= nowTs;
+  }).sort((a, b) => new Date(b.releaseAt).getTime() - new Date(a.releaseAt).getTime());
 }
 
 /**

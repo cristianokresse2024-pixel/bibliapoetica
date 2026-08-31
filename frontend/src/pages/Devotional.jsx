@@ -26,11 +26,38 @@ export default function Devotional() {
   const [audioStateText, setAudioStateText] = useState('Pronto para ouvir');
 
   const audioRef = useRef(null);
+  const isManualRef = useRef(false);
   const sources = currentDevotional ? getDevotionalAudioUrls(currentDevotional.audioFileName) : [];
   const pastList = getPastDevotionals();
 
+  // Auto-atualização em tempo real quando o horário das 05h chega ou ao retornar para o app
+  useEffect(() => {
+    const checkAndRefresh = () => {
+      const active = getActiveDevotional();
+      if (!isManualRef.current && active) {
+        setCurrentDevotional((prev) => {
+          if (!prev || prev.id !== active.id) {
+            return active;
+          }
+          return prev;
+        });
+      }
+    };
+
+    window.addEventListener('focus', checkAndRefresh);
+    document.addEventListener('visibilitychange', checkAndRefresh);
+    const timer = setInterval(checkAndRefresh, 10000);
+
+    return () => {
+      window.removeEventListener('focus', checkAndRefresh);
+      document.removeEventListener('visibilitychange', checkAndRefresh);
+      clearInterval(timer);
+    };
+  }, []);
+
   // Troca de devocional
   const handleSelectDevotional = (dev) => {
+    isManualRef.current = true;
     setCurrentDevotional(dev);
     setSourceIdx(0);
     setCurrentTime(0);
