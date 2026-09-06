@@ -7,6 +7,36 @@
 
 export const DEVOTIONALS = [
   {
+    id: 'dia-37-amor-atitudes',
+    title: 'QUANDO O AMOR TRANSFORMA NOSSAS ATITUDES',
+    tag: '🔥 DIA 37 DE 50 | Rumo ao Pentecostes',
+    dateFormatted: 'Dia 37 de 50 • Rumo ao Pentecostes',
+    verse: '“Nisto todos conhecerão que sois meus discípulos, se tiverdes amor uns aos outros.”',
+    verseRef: 'João 13:35',
+    author: 'Pr. Cristiano Kresse',
+    audioFileName: 'devocional-dia-37.mp3',
+    // ⏰ AGENDADO PARA LIBERAÇÃO AUTOMÁTICA EM 06/09/2026 ÀS 05:00 DA MANHÃ (Horário de Brasília)
+    releaseAt: '2026-09-06T05:00:00-03:00',
+    reflection: 'Do que adianta querer viver uma grande experiência com Deus, se isso não transforma a maneira como tratamos as pessoas?\n\nA presença do Espírito Santo não foi dada apenas para produzir momentos emocionantes na igreja; ela transforma o nosso coração, e uma das maiores evidências dessa transformação é o amor. Jesus ensinou que as pessoas nos reconheceriam pelo amor, não por títulos, quantidade de palavras bonitas ou tamanho de conhecimento.\n\nQuando o Espírito Santo opera em nós, mudamos o olhar: quem antes nos irritava passa a ser alvo de oração; quem nos feriu deixa de ser apenas inimigo e passa a ser alguém que necessita da graça de Deus. Amar não é apenas sentimento: é uma decisão prática de perdoar, ouvir, servir sem esperar aplausos e controlar palavras que poderiam ferir.',
+    challenge: 'Escolha uma pessoa hoje e demonstre o amor de Jesus de forma prática: uma mensagem sincera, uma ligação, um pedido de perdão, um gesto de ajuda ou uma oração por alguém difícil de amar. Faça isso para a glória de Deus, sem buscar reconhecimento humano.\n\n🔥 Propósito da Jornada: Durante esses 50 dias, faça diariamente esta oração: “Espírito Santo, prepara o meu coração e enche a minha vida da Tua presença.”',
+    callToAction: 'Compartilhe este devocional com alguém querido. O amor vivido em atitudes é o maior testemunho de que Cristo vive em nós!',
+  },
+  {
+    id: 'dia-36-humildade',
+    title: 'DEUS DÁ GRAÇA AOS HUMILDES',
+    tag: '🔥 DIA 36 DE 50 | Rumo ao Pentecostes',
+    dateFormatted: 'Dia 36 de 50 • Rumo ao Pentecostes',
+    verse: '“Deus resiste aos soberbos, mas dá graça aos humildes.”',
+    verseRef: 'Tiago 4:6',
+    author: 'Pr. Cristiano Kresse',
+    audioFileName: 'devocional-dia-36.m4a',
+    // ⏰ LIBERAÇÃO: 05/09/2026 ÀS 05:00 DA MANHÃ (Horário de Brasília)
+    releaseAt: '2026-09-05T05:00:00-03:00',
+    reflection: 'Muitas vezes o maior obstáculo para Deus não é a nossa fraqueza, é a nossa autossuficiência. É quando começamos a pensar que conseguimos sozinhos, que sabemos o que estamos fazendo e que Deus precisa agir do jeito que esperamos. Sem perceber, o coração vai ficando cheio de si mesmo.\n\nMas a Bíblia diz: Deus dá graça aos humildes. Humildade não significa pensar que você não tem valor, mas sim reconhecer: “eu preciso de Deus”. Preciso da direção Dele, da correção Dele, da graça Dele e do Seu Espírito Santo. Não importa quanta experiência tenhamos, nunca chegamos ao ponto de não precisar mais do Senhor. Um coração humilde não diz “eu já sei”, pelo contrário, pergunta: “Senhor, o que Tu queres me ensinar hoje?”',
+    challenge: 'Faça uma avaliação sincera do seu coração hoje. Pergunte a Deus: “Senhor, o que existe dentro de mim que precisa diminuir para que o Senhor tenha mais espaço?” Se Ele mostrar algo, entregue a Ele, peça perdão se necessário, mude de atitude e deixe o Espírito Santo transformar a sua vida.\n\n🔥 Propósito da Jornada: Durante esses 50 dias, faça diariamente esta oração: “Espírito Santo, prepara o meu coração e enche a minha vida da Tua presença.”',
+    callToAction: 'Compartilhe este devocional com alguém que precisa dessa mensagem hoje. A humildade abre o caminho para a graça de Deus se manifestar!',
+  },
+  {
     id: 'dia-34-sozinho',
     title: 'VOCÊ NÃO PRECISA FAZER TUDO SOZINHO',
     tag: '🔥 DIA 34 DE 50 | Rumo ao Pentecostes',
@@ -103,7 +133,10 @@ export const DEVOTIONALS = [
 export function getDevotionalAudioUrls(audioFileName) {
   if (!audioFileName) return [];
   const baseName = audioFileName.replace(/\.(mp3|wav|m4a)$/i, '');
-  const extensions = ['.m4a', '.mp3', '.wav'];
+  const match = audioFileName.match(/\.(mp3|wav|m4a)$/i);
+  const preferredExt = match ? match[0].toLowerCase() : '.m4a';
+  const allExts = [preferredExt, '.m4a', '.mp3', '.wav'];
+  const extensions = [...new Set(allExts)];
 
   const urls = [];
   for (const ext of extensions) {
