@@ -15,8 +15,8 @@ export const DEVOTIONALS = [
     verseRef: 'Salmo 139:23-24',
     author: 'Pr. Cristiano Kresse',
     audioFileName: 'devocional-dia-42.mp3',
-    // ⏰ AGENDADO PARA LIBERAÇÃO AUTOMÁTICA EM 10/09/2026 ÀS 05:00 DA MANHÃ (Horário de Brasília)
-    releaseAt: '2026-09-10T05:00:00-03:00',
+    // ⏰ AGENDADO PARA LIBERAÇÃO AUTOMÁTICA EM 11/09/2026 ÀS 05:00 DA MANHÃ (Horário de Brasília)
+    releaseAt: '2026-09-11T05:00:00-03:00',
     reflection: 'Existem feridas que ninguém vê e dores que aprendemos a disfarçar. Continuamos sorrindo, servindo e dizendo que está tudo bem, mas lá dentro existe algo que ainda precisa ser tratado. Uma das partes mais profundas da preparação para o Pentecostes é permitir que Deus entre nos lugares do nosso coração que ninguém mais consegue acessar.\n\nDavi orou: “Sonda-me, ó Deus... examina-me”. Deus já conhece os nossos pensamentos, medos e feridas, e mesmo assim nos chama para perto. A correção de Deus não é rejeição: Ele não aponta a ferida para condenar, mas toca para curar e restaurar. Não transforme suas feridas do passado na sua identidade. Você pode ser sincero diante do Senhor, porque as mãos que revelam a ferida são as mesmas que sustentam a sua cura.',
     challenge: 'Tire alguns minutos sozinho com Deus hoje e faça a oração de Davi: “Senhor, sonda o meu coração e mostra o que precisa ser tratado”. Se Deus trouxer algo à sua memória — uma mágoa, um comportamento, uma culpa —, não fuja: entregue tudo aos pés de Jesus e receba o perdão e a cura do Espírito Santo.\n\n🔥 Propósito da Jornada: Durante esses 50 dias, faça diariamente esta oração: “Espírito Santo, prepara o meu coração e enche a minha vida da Tua presença.”',
     callToAction: 'Compartilhe este devocional com alguém. A cura de Deus começa quando temos a coragem de abrir o coração sem máscaras!',
@@ -30,8 +30,8 @@ export const DEVOTIONALS = [
     verseRef: 'Filipenses 4:4',
     author: 'Pr. Cristiano Kresse',
     audioFileName: 'devocional-dia-41.mp3',
-    // ⏰ AGENDADO PARA LIBERAÇÃO AUTOMÁTICA EM 09/09/2026 ÀS 05:00 DA MANHÃ (Horário de Brasília)
-    releaseAt: '2026-09-09T05:00:00-03:00',
+    // ⏰ AGENDADO PARA LIBERAÇÃO AUTOMÁTICA EM 10/09/2026 ÀS 05:00 DA MANHÃ (Horário de Brasília)
+    releaseAt: '2026-09-10T05:00:00-03:00',
     reflection: 'É mais fácil começar animado do que permanecer animado. No início de uma caminhada com Deus há expectativa e empolgação, mas com o passar do tempo chegam a rotina, as preocupações e as orações que ainda parecem sem resposta. É aí que a alegria corre o risco de desaparecer.\n\nPor isso, Paulo escreveu: “Alegrai-vos sempre no Senhor”. A alegria cristã não depende das circunstâncias e nem da ausência de problemas; ela nasce de saber quem Deus é. Ser cheio do Espírito Santo não significa nunca ter dias difíceis, mas saber que nesses dias você nunca está sozinho. A alegria é fruto do Espírito Santo (Gálatas 5:22), alimentada pela oração, pela Palavra e pela gratidão por aquilo que Deus já realizou.',
     challenge: 'Hoje, pratique 3 coisas práticas: agradeça a Deus por 3 bênçãos que você já tem, adore ao Senhor mesmo por aquilo que ainda não se concretizou, e envie uma palavra de encorajamento para alguém. Declare: “A minha alegria está no Senhor!”\n\n🔥 Propósito da Jornada: Durante esses 50 dias, faça diariamente esta oração: “Espírito Santo, prepara o meu coração e enche a minha vida da Tua presença.”',
     callToAction: 'Compartilhe este devocional com alguém querido que precisa renovar o ânimo e a alegria espiritual no dia de hoje!',
@@ -45,11 +45,26 @@ export const DEVOTIONALS = [
     verseRef: 'João 10:9',
     author: 'Pr. Cristiano Kresse',
     audioFileName: 'devocional-dia-40.mp3',
-    // ⏰ AGENDADO PARA LIBERAÇÃO AUTOMÁTICA EM 08/09/2026 ÀS 05:00 DA MANHÃ (Horário de Brasília)
-    releaseAt: '2026-09-08T05:00:00-03:00',
+    // ⏰ AGENDADO PARA LIBERAÇÃO AUTOMÁTICA EM 09/09/2026 ÀS 05:00 DA MANHÃ (Horário de Brasília)
+    releaseAt: '2026-09-09T05:00:00-03:00',
     reflection: 'Você ora, planeja, acredita... e mesmo assim a porta se fecha. Uma oportunidade que não acontece, uma resposta que não chega, um projeto interrompido. E então surge a pergunta: “Deus, por quê?”\n\nUma porta fechada não significa que Deus te abandonou. Nem toda porta aberta é a vontade de Deus, e nem tudo o que parece bom é o melhor para nós. Às vezes, o que chamamos de perda é, na verdade, livramento e proteção de Deus, que enxerga o caminho inteiro enquanto nós vemos apenas alguns passos. Não transforme uma porta fechada em paralisia espiritual. Não pare de orar, de servir e de sonhar. Jesus é a porta principal, e quando Ele conduz os nossos passos, o nosso destino está seguro.',
     challenge: 'Pense em uma porta que você tem tentado abrir à força há algum tempo. Entregue essa situação a Deus em oração e diga: “Senhor, eu não quero apenas a porta que eu desejo, quero que o Senhor me conduza pela porta certa.” Se Deus abrir, entre; se Ele fechar, continue caminhando em paz.\n\n🔥 Propósito da Jornada: Durante esses 50 dias, faça diariamente esta oração: “Espírito Santo, prepara o meu coração e enche a minha vida da Tua presença.”',
     callToAction: 'Compartilhe este devocional com alguém que está enfrentando frustração com planos frustrados. Deus continua no controle de cada caminho!',
+  },
+  {
+    id: 'dia-39-usar-o-que-tem',
+    title: 'DEUS QUER USAR O QUE VOCÊ JÁ TEM',
+    tag: '🔥 DIA 39 DE 50 | Rumo ao Pentecostes',
+    dateFormatted: 'Dia 39 de 50 • Rumo ao Pentecostes',
+    verse: '“E Eliseu lhe disse: Que te hei de fazer? Dize-me que é o que tens em casa. E ela disse: Tua serva não tem nada em casa, senão uma botija de azeite.”',
+    verseRef: '2 Reis 4:2',
+    author: 'Pr. Cristiano Kresse',
+    audioFileName: 'devocional-dia-39.mp3',
+    // ⏰ AGENDADO PARA LIBERAÇÃO AUTOMÁTICA EM 08/09/2026 ÀS 05:00 DA MANHÃ (Horário de Brasília)
+    releaseAt: '2026-09-08T05:00:00-03:00',
+    reflection: 'Ficar esperando ter mais para começar a servir a Deus é uma armadilha sutil: esperamos ter mais conhecimento, mais recursos, mais tempo ou uma vida perfeita. Enquanto focamos no que nos falta, deixamos de perceber que Deus pode começar o milagre com aquilo que já está em nossas mãos.\n\nNa história da viúva em 2 Reis 4, Eliseu não perguntou o que ela não tinha, mas sim: “Que é que tens em casa?”. Ela tinha apenas uma botija de azeite — parecia insignificante diante do tamanho da dívida, mas nas mãos do Senhor o pouco se multiplicou e foi mais que suficiente. Não espere condições perfeitas para obedecer. Deus não procura pessoas extraordinárias, Ele procura corações disponíveis.',
+    challenge: 'Faça hoje uma lista de 3 coisas que Deus já colocou em suas mãos (um talento, um recurso, uma experiência ou seu próprio tempo) e pergunte: “Senhor, como posso usar isso para abençoar alguém hoje?”. Dê o primeiro passo com o que você já tem!\n\n🔥 Propósito da Jornada: Durante esses 50 dias, faça diariamente esta oração: “Espírito Santo, prepara o meu coração e enche a minha vida da Tua presença.”',
+    callToAction: 'Compartilhe este devocional com alguém. Nas mãos certas de Deus, o pouco deixa de ser pouco e se transforma em milagre!',
   },
   {
     id: 'dia-38-pressa-aquietar',
