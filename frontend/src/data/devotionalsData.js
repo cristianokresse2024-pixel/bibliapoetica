@@ -7,6 +7,21 @@
 
 export const DEVOTIONALS = [
   {
+    id: 'dia-38-pressa-aquietar',
+    title: 'NÃO DEIXE A PRESSA ROUBAR O QUE DEUS ESTÁ FAZENDO',
+    tag: '🔥 DIA 38 DE 50 | Rumo ao Pentecostes',
+    dateFormatted: 'Dia 38 de 50 • Rumo ao Pentecostes',
+    verse: '“Aquietai-vos e sabei que eu sou Deus.”',
+    verseRef: 'Salmo 46:10',
+    author: 'Pr. Cristiano Kresse',
+    audioFileName: 'devocional-dia-38.m4a',
+    // ⏰ AGENDADO PARA LIBERAÇÃO AUTOMÁTICA EM 07/09/2026 ÀS 05:00 DA MANHÃ (Horário de Brasília)
+    releaseAt: '2026-09-07T05:00:00-03:00',
+    reflection: 'A nossa vida é cheia de barulho: notificações, preocupações, decisões e pressa. No meio disso tudo, muitas vezes queremos ouvir a voz de Deus sem parar para ficar em silêncio. Pedimos direção, mas continuamos correndo; pedimos uma resposta, mas já decidimos o que queremos fazer.\n\nNem todo silêncio é ausência de Deus. Silêncio não significa abandono: existem momentos em que Deus está trabalhando em profundidade enquanto nós esperamos uma resposta na superfície. Aquietar-se é parar de tentar controlar o incontrolável — o amanhã, o tempo e a reação dos outros nunca estiveram nas nossas mãos. No silêncio, Deus amadurece a nossa fé, alinha prioridades e nos ensina a depender Dele. Não tenha tanta pressa de sair de onde Deus ainda está trabalhando.',
+    challenge: 'Hoje, separe pelo menos 10 minutos sem celular, sem música e sem distrações. Fique em silêncio diante de Deus e diga: “Senhor, estou aqui. Fala comigo e trabalha em mim.” Depois, leia Salmo 46:10 e descanse o seu coração.\n\n🔥 Propósito da Jornada: Durante esses 50 dias, faça diariamente esta oração: “Espírito Santo, prepara o meu coração e enche a minha vida da Tua presença.”',
+    callToAction: 'Compartilhe este devocional com alguém que está enfrentando ansiedade ou pressa. Lembrar de aquietar a alma traz a paz de Deus que excede todo entendimento!',
+  },
+  {
     id: 'dia-37-amor-atitudes',
     title: 'QUANDO O AMOR TRANSFORMA NOSSAS ATITUDES',
     tag: '🔥 DIA 37 DE 50 | Rumo ao Pentecostes',
