@@ -7,6 +7,51 @@
 
 export const DEVOTIONALS = [
   {
+    id: 'dia-42-curar-esconder',
+    title: 'DEUS QUER CURAR AQUILO QUE VOCÊ APRENDEU A ESCONDER',
+    tag: '🔥 DIA 42 DE 50 | Rumo ao Pentecostes',
+    dateFormatted: 'Dia 42 de 50 • Rumo ao Pentecostes',
+    verse: '“Sonda-me, ó Deus, e conhece o meu coração; prova-me, e conhece os meus pensamentos. E vê se há em mim algum caminho mau, e guia-me pelo caminho eterno.”',
+    verseRef: 'Salmo 139:23-24',
+    author: 'Pr. Cristiano Kresse',
+    audioFileName: 'devocional-dia-42.mp3',
+    // ⏰ AGENDADO PARA LIBERAÇÃO AUTOMÁTICA EM 10/09/2026 ÀS 05:00 DA MANHÃ (Horário de Brasília)
+    releaseAt: '2026-09-10T05:00:00-03:00',
+    reflection: 'Existem feridas que ninguém vê e dores que aprendemos a disfarçar. Continuamos sorrindo, servindo e dizendo que está tudo bem, mas lá dentro existe algo que ainda precisa ser tratado. Uma das partes mais profundas da preparação para o Pentecostes é permitir que Deus entre nos lugares do nosso coração que ninguém mais consegue acessar.\n\nDavi orou: “Sonda-me, ó Deus... examina-me”. Deus já conhece os nossos pensamentos, medos e feridas, e mesmo assim nos chama para perto. A correção de Deus não é rejeição: Ele não aponta a ferida para condenar, mas toca para curar e restaurar. Não transforme suas feridas do passado na sua identidade. Você pode ser sincero diante do Senhor, porque as mãos que revelam a ferida são as mesmas que sustentam a sua cura.',
+    challenge: 'Tire alguns minutos sozinho com Deus hoje e faça a oração de Davi: “Senhor, sonda o meu coração e mostra o que precisa ser tratado”. Se Deus trouxer algo à sua memória — uma mágoa, um comportamento, uma culpa —, não fuja: entregue tudo aos pés de Jesus e receba o perdão e a cura do Espírito Santo.\n\n🔥 Propósito da Jornada: Durante esses 50 dias, faça diariamente esta oração: “Espírito Santo, prepara o meu coração e enche a minha vida da Tua presença.”',
+    callToAction: 'Compartilhe este devocional com alguém. A cura de Deus começa quando temos a coragem de abrir o coração sem máscaras!',
+  },
+  {
+    id: 'dia-41-alegria-caminho',
+    title: 'NÃO PERCA A ALEGRIA NO MEIO DO CAMINHO',
+    tag: '🔥 DIA 41 DE 50 | Rumo ao Pentecostes',
+    dateFormatted: 'Dia 41 de 50 • Rumo ao Pentecostes',
+    verse: '“Alegrai-vos sempre no Senhor; outra vez digo: alegrai-vos.”',
+    verseRef: 'Filipenses 4:4',
+    author: 'Pr. Cristiano Kresse',
+    audioFileName: 'devocional-dia-41.mp3',
+    // ⏰ AGENDADO PARA LIBERAÇÃO AUTOMÁTICA EM 09/09/2026 ÀS 05:00 DA MANHÃ (Horário de Brasília)
+    releaseAt: '2026-09-09T05:00:00-03:00',
+    reflection: 'É mais fácil começar animado do que permanecer animado. No início de uma caminhada com Deus há expectativa e empolgação, mas com o passar do tempo chegam a rotina, as preocupações e as orações que ainda parecem sem resposta. É aí que a alegria corre o risco de desaparecer.\n\nPor isso, Paulo escreveu: “Alegrai-vos sempre no Senhor”. A alegria cristã não depende das circunstâncias e nem da ausência de problemas; ela nasce de saber quem Deus é. Ser cheio do Espírito Santo não significa nunca ter dias difíceis, mas saber que nesses dias você nunca está sozinho. A alegria é fruto do Espírito Santo (Gálatas 5:22), alimentada pela oração, pela Palavra e pela gratidão por aquilo que Deus já realizou.',
+    challenge: 'Hoje, pratique 3 coisas práticas: agradeça a Deus por 3 bênçãos que você já tem, adore ao Senhor mesmo por aquilo que ainda não se concretizou, e envie uma palavra de encorajamento para alguém. Declare: “A minha alegria está no Senhor!”\n\n🔥 Propósito da Jornada: Durante esses 50 dias, faça diariamente esta oração: “Espírito Santo, prepara o meu coração e enche a minha vida da Tua presença.”',
+    callToAction: 'Compartilhe este devocional com alguém querido que precisa renovar o ânimo e a alegria espiritual no dia de hoje!',
+  },
+  {
+    id: 'dia-40-portas-fechadas',
+    title: 'QUANDO DEUS FECHA UMA PORTA, NÃO PARE NO CAMINHO',
+    tag: '🔥 DIA 40 DE 50 | Rumo ao Pentecostes',
+    dateFormatted: 'Dia 40 de 50 • Rumo ao Pentecostes',
+    verse: '“Eu sou a porta; se alguém entrar por mim, salvar-se-á, e entrará, e sairá, e achará pastagens.”',
+    verseRef: 'João 10:9',
+    author: 'Pr. Cristiano Kresse',
+    audioFileName: 'devocional-dia-40.mp3',
+    // ⏰ AGENDADO PARA LIBERAÇÃO AUTOMÁTICA EM 08/09/2026 ÀS 05:00 DA MANHÃ (Horário de Brasília)
+    releaseAt: '2026-09-08T05:00:00-03:00',
+    reflection: 'Você ora, planeja, acredita... e mesmo assim a porta se fecha. Uma oportunidade que não acontece, uma resposta que não chega, um projeto interrompido. E então surge a pergunta: “Deus, por quê?”\n\nUma porta fechada não significa que Deus te abandonou. Nem toda porta aberta é a vontade de Deus, e nem tudo o que parece bom é o melhor para nós. Às vezes, o que chamamos de perda é, na verdade, livramento e proteção de Deus, que enxerga o caminho inteiro enquanto nós vemos apenas alguns passos. Não transforme uma porta fechada em paralisia espiritual. Não pare de orar, de servir e de sonhar. Jesus é a porta principal, e quando Ele conduz os nossos passos, o nosso destino está seguro.',
+    challenge: 'Pense em uma porta que você tem tentado abrir à força há algum tempo. Entregue essa situação a Deus em oração e diga: “Senhor, eu não quero apenas a porta que eu desejo, quero que o Senhor me conduza pela porta certa.” Se Deus abrir, entre; se Ele fechar, continue caminhando em paz.\n\n🔥 Propósito da Jornada: Durante esses 50 dias, faça diariamente esta oração: “Espírito Santo, prepara o meu coração e enche a minha vida da Tua presença.”',
+    callToAction: 'Compartilhe este devocional com alguém que está enfrentando frustração com planos frustrados. Deus continua no controle de cada caminho!',
+  },
+  {
     id: 'dia-38-pressa-aquietar',
     title: 'NÃO DEIXE A PRESSA ROUBAR O QUE DEUS ESTÁ FAZENDO',
     tag: '🔥 DIA 38 DE 50 | Rumo ao Pentecostes',
