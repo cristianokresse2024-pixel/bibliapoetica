@@ -7,6 +7,21 @@
 
 export const DEVOTIONALS = [
   {
+    id: 'dia-43-disposto-a-servir',
+    title: 'VOCÊ ESTÁ DISPOSTO A SERVIR?',
+    tag: '🔥 DIA 43 DE 50 | Rumo ao Pentecostes',
+    dateFormatted: 'Dia 43 de 50 • Rumo ao Pentecostes',
+    verse: '“Pois o próprio Filho do Homem não veio para ser servido, mas para servir e dar a sua vida em resgate por muitos.”',
+    verseRef: 'Marcos 10:45',
+    author: 'Pr. Cristiano Kresse',
+    audioFileName: 'devocional-dia-43.mp3',
+    // ⏰ AGENDADO PARA LIBERAÇÃO AUTOMÁTICA EM 12/09/2026 ÀS 05:00 DA MANHÃ (Horário de Brasília)
+    releaseAt: '2026-09-12T05:00:00-03:00',
+    reflection: 'É possível querer ser cheio do Espírito Santo e, ao mesmo tempo, querer que tudo gire ao nosso redor: queremos receber, ser abençoados e viver experiências profundas, mas Jesus nos apresenta outro caminho — o caminho do serviço. Ele, sendo o Senhor, escolheu servir, e nos ensina que o Reino de Deus não é sobre ser servido, mas sobre doar a própria vida.\n\nServir não é cumprir tarefas por obrigação: é uma expressão visível de amor. Quem serve de verdade não precisa de aplausos, reconhecimento ou elogios humanos, porque compreende que está servindo a Deus através das pessoas. O Espírito Santo nos tira do centro e nos ensina a perguntar menos “o que eu ganho com isso?” e muito mais “quem eu posso abençoar?”. O Reino de Deus avança através de gestos simples feitos com coração disponível.',
+    challenge: 'Faça algo prático por alguém hoje sem contar para ninguém e sem esperar reconhecimento: uma ajuda simples, uma palavra de ânimo, uma oração ou um gesto de serviço que alivie o fardo de alguém. E diga a Deus: “Senhor, que isso seja uma expressão do Teu amor através de mim”.\n\n🔥 Propósito da Jornada: Durante esses 50 dias, faça diariamente esta oração: “Espírito Santo, prepara o meu coração e enche a minha vida da Tua presença.”',
+    callToAction: 'Compartilhe este devocional com alguém querido. O amor de Cristo se manifesta com poder quando nos dispomos a servir!',
+  },
+  {
     id: 'dia-42-curar-esconder',
     title: 'DEUS QUER CURAR AQUILO QUE VOCÊ APRENDEU A ESCONDER',
     tag: '🔥 DIA 42 DE 50 | Rumo ao Pentecostes',
