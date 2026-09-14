@@ -1,4 +1,4 @@
-﻿// =============================================================================
+// =============================================================================
 // WEBHOOK SERVERLESS OFICIAL — MERCADO PAGO + PROGRAMA DE EMBAIXADORES
 // -----------------------------------------------------------------------------
 // Endpoint: POST /api/webhooks/mercadopago
@@ -13,11 +13,11 @@
 // 7. Registro de auditoria em audit_logs e resposta HTTP 200 imediata.
 // =============================================================================
 
-import { MercadoPagoService } from '../lib/MercadoPagoService.js';
+import { MercadoPagoService } from '../../server-lib/MercadoPagoService.js';
 import { 
   AMBASSADOR_CONFIG, 
   calculateCurrentBenefit 
-} from '../lib/AmbassadorEngine.js';
+} from '../../server-lib/AmbassadorEngine.js';
 
 // ---- Configuração do Cliente Supabase REST Serverless ----
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';

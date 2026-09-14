@@ -6,7 +6,7 @@
 // Retorna: { ok: true, id, init_point, status, external_reference }
 // =============================================================================
 
-import { MercadoPagoService } from '../lib/MercadoPagoService.js';
+import { MercadoPagoService } from '../../server-lib/MercadoPagoService.js';
 
 const ALLOWED_ORIGINS = (
   process.env.ALLOWED_ORIGINS ||

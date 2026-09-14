@@ -58,10 +58,35 @@ function load() {
 
 let state = load();
 const listeners = new Set();
+let syncTimer = null;
+
+export function triggerDebouncedCloudSync() {
+  if (syncTimer) clearTimeout(syncTimer);
+  syncTimer = setTimeout(async () => {
+    try {
+      const sessionRaw = localStorage.getItem('viva_session_v1');
+      if (!sessionRaw) return;
+      const session = JSON.parse(sessionRaw);
+      if (!session || !session.id) return;
+
+      await fetch('/api/user/progress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: session.id,
+          progress: state,
+        }),
+      });
+    } catch {
+      // Falha silenciosa se estiver offline
+    }
+  }, 1200);
+}
 
 function emit() {
   try { localStorage.setItem(KEY, JSON.stringify(state)); } catch {}
   listeners.forEach((l) => l());
+  triggerDebouncedCloudSync();
 }
 function set(updater) {
   state = typeof updater === 'function' ? updater(state) : { ...state, ...updater };
@@ -73,6 +98,49 @@ function getSnapshot() { return state; }
 
 export function useProgress() {
   return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+}
+
+/**
+ * Restaura e mescla o progresso vindo da nuvem (Supabase) ao fazer login em qualquer dispositivo
+ */
+export function hydrateProgressFromCloud(cloudProgress) {
+  if (!cloudProgress) return;
+  set((current) => {
+    return {
+      ...current,
+      read: { ...current.read, ...(cloudProgress.read || {}) },
+      favorites: Array.from(new Set([...(current.favorites || []), ...(cloudProgress.favorites || [])])),
+      notes: { ...current.notes, ...(cloudProgress.notes || {}) },
+      achievements: { ...current.achievements, ...(cloudProgress.achievements || {}) },
+      xp: Math.max(current.xp || 0, cloudProgress.xp || 0),
+      streak:
+        (cloudProgress.streak?.count || 0) >= (current.streak?.count || 0)
+          ? cloudProgress.streak
+          : current.streak,
+      prayer: {
+        totalSeconds: Math.max(current.prayer?.totalSeconds || 0, cloudProgress.prayer?.totalSeconds || 0),
+        sessions: Math.max(current.prayer?.sessions || 0, cloudProgress.prayer?.sessions || 0),
+        longest: Math.max(current.prayer?.longest || 0, cloudProgress.prayer?.longest || 0),
+        lastGoalMin: cloudProgress.prayer?.lastGoalMin || current.prayer?.lastGoalMin || 15,
+        log: { ...(current.prayer?.log || {}), ...(cloudProgress.prayer?.log || {}) },
+        history: [...(cloudProgress.prayer?.history || []), ...(current.prayer?.history || [])].slice(0, 100),
+      },
+      fast: {
+        completed: Math.max(current.fast?.completed || 0, cloudProgress.fast?.completed || 0),
+        totalHours: Math.max(current.fast?.totalHours || 0, cloudProgress.fast?.totalHours || 0),
+        longestHours: Math.max(current.fast?.longestHours || 0, cloudProgress.fast?.longestHours || 0),
+        active: current.fast?.active || cloudProgress.fast?.active || null,
+        history: [...(cloudProgress.fast?.history || []), ...(current.fast?.history || [])].slice(0, 100),
+      },
+      gratitude: [...(cloudProgress.gratitude || []), ...(current.gratitude || [])]
+        .filter((v, i, a) => a.findIndex((t) => t.id === v.id) === i)
+        .slice(0, 500),
+      lastRead: cloudProgress.lastRead || current.lastRead,
+      dailyGoal: cloudProgress.dailyGoal || current.dailyGoal || 3,
+      fontScale: cloudProgress.fontScale || current.fontScale || 1.0,
+      version: cloudProgress.version || current.version || 'nvi',
+    };
+  });
 }
 
 // ---------- helpers de data ----------

@@ -27,12 +27,39 @@ export default function Devotional() {
   const [audioStateText, setAudioStateText] = useState('Pronto para ouvir');
 
   const audioRef = useRef(null);
+  const isManualRef = useRef(false);
   const sources = currentDevotional ? getDevotionalAudioUrls(currentDevotional.audioFileName) : [];
   const pastList = getPastDevotionals();
   const upcomingList = getUpcomingDevotionals();
 
+  // Auto-atualização em tempo real quando o horário das 05h chega ou ao retornar para o app
+  useEffect(() => {
+    const checkAndRefresh = () => {
+      const active = getActiveDevotional();
+      if (!isManualRef.current && active) {
+        setCurrentDevotional((prev) => {
+          if (!prev || prev.id !== active.id) {
+            return active;
+          }
+          return prev;
+        });
+      }
+    };
+
+    window.addEventListener('focus', checkAndRefresh);
+    document.addEventListener('visibilitychange', checkAndRefresh);
+    const timer = setInterval(checkAndRefresh, 10000);
+
+    return () => {
+      window.removeEventListener('focus', checkAndRefresh);
+      document.removeEventListener('visibilitychange', checkAndRefresh);
+      clearInterval(timer);
+    };
+  }, []);
+
   // Troca de devocional
   const handleSelectDevotional = (dev) => {
+    isManualRef.current = true;
     setCurrentDevotional(dev);
     setSourceIdx(0);
     setCurrentTime(0);
@@ -423,12 +450,15 @@ export default function Devotional() {
         </section>
       )}
 
-      {/* Histórico: Devocionais Anteriores */}
+      {/* Histórico: Apenas o Devocional do Dia Anterior (Ontem) */}
       {pastList.length > 0 && (
         <section className="section" style={{ marginTop: 24 }}>
-          <h3 style={{ fontSize: 20, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span>📜</span> Devocionais Anteriores
+          <h3 style={{ fontSize: 20, marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span>📜</span> Devocional de Ontem (Dia Anterior)
           </h3>
+          <p className="sub" style={{ fontSize: 13, marginBottom: 12 }}>
+            Caso tenha perdido o devocional de ontem, você ainda pode ouvir e fazer a sua oração:
+          </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {pastList.map((item) => (
               <div

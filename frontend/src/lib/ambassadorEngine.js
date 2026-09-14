@@ -10,10 +10,10 @@ export const AMBASSADOR_CONFIG = {
 
 export const MILESTONES = [
   { minActive: 10, level: 'EMBAIXADOR', benefit: 'Assinatura 100% Gratuita', key: 'free_subscription', badge: '👑 Embaixador' },
-  { minActive: 5,  level: 'PARTICIPANTE', benefit: '6 meses grátis',         key: '6_months',          badge: '⭐ Ouro' },
-  { minActive: 3,  level: 'PARTICIPANTE', benefit: '3 meses grátis',         key: '3_months',          badge: '🥈 Prata' },
-  { minActive: 2,  level: 'PARTICIPANTE', benefit: '2 meses grátis',         key: '2_months',          badge: '🥉 Bronze' },
-  { minActive: 1,  level: 'PARTICIPANTE', benefit: '1 mês grátis',           key: '1_month',           badge: '🌱 Semente' },
+  { minActive: 7,  level: 'PARTICIPANTE', benefit: '2 Meses Grátis Geral',   key: '2_months',          badge: '🥈 Prata' },
+  { minActive: 6,  level: 'PARTICIPANTE', benefit: '1 Mês Grátis Geral',     key: '1_month',           badge: '🥉 Bronze' },
+  { minActive: 5,  level: 'PARTICIPANTE', benefit: '1 Módulo de Estudos',    key: '1_module',          badge: '📚 Módulo Completo' },
+  { minActive: 4,  level: 'PARTICIPANTE', benefit: '4 Aulas Liberadas',      key: '4_lessons',         badge: '🎬 4 Aulas' },
 ];
 
 export const REFERRED_BY_KEY = 'viva_referred_by_code';
@@ -108,6 +108,145 @@ export function saveUserReferrals(userId, referrals) {
 }
 
 /**
+ * Carrega o livro razão de comissões
+ */
+export function getUserLedger(userId) {
+  if (!userId) return [];
+  try {
+    const raw = localStorage.getItem(`${STORAGE_PREFIX}_ledger_${userId}`);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Salva o livro razão de comissões
+ */
+export function saveUserLedger(userId, ledger) {
+  if (!userId) return;
+  try {
+    localStorage.setItem(`${STORAGE_PREFIX}_ledger_${userId}`, JSON.stringify(ledger));
+  } catch (e) {
+    console.error('Erro ao salvar ledger:', e);
+  }
+}
+
+/**
+ * Retorna os direitos de acesso e aulas desbloqueadas pelo usuário
+ */
+export function getUserUnlockedEntitlements(user) {
+  if (!user) {
+    return {
+      canAccessAll: false,
+      canAccessStudies: false,
+      canAccessIA: false,
+      allowedLessonsCount: 0,
+      allowedModulesCount: 0,
+      badge: 'Visitante',
+      label: 'Nenhum benefício ativo',
+    };
+  }
+
+  const isVip = user.email === 'cristianokresse2024@gmail.com' || user.email === 'jheisyellen91@gmail.com' || user.plan === 'vip_lifetime';
+  const isPaid = user.plan === 'subscriber' || user.plan === 'premium' || user.status === 'active';
+  const isAmbassadorFree = user.plan === 'ambassador_free';
+
+  if (isVip || isPaid || isAmbassadorFree) {
+    return {
+      canAccessAll: true,
+      canAccessStudies: true,
+      canAccessIA: true,
+      allowedLessonsCount: Infinity,
+      allowedModulesCount: Infinity,
+      badge: isVip ? '👑 VIP Vitalício' : '⭐ Assinante',
+      label: 'Acesso Total Liberado',
+    };
+  }
+
+  const userId = user.id || user.email;
+  const referrals = getUserReferrals(userId);
+  const activeReferrals = referrals.filter((r) => r.status === 'active_subscriber');
+  const activeCount = activeReferrals.length;
+  const totalCount = referrals.length;
+
+  // 10 ativos -> Acesso Gratuito Total de Embaixador
+  if (activeCount >= 10 || user.wasAmbassador) {
+    return {
+      canAccessAll: true,
+      canAccessStudies: true,
+      canAccessIA: true,
+      allowedLessonsCount: Infinity,
+      allowedModulesCount: Infinity,
+      badge: '👑 Embaixador Oficial',
+      label: 'Assinatura 100% Gratuita (10 Ativos)',
+    };
+  }
+
+  // 7 indicados -> 2 Meses Grátis Geral
+  if (activeCount >= 7) {
+    return {
+      canAccessAll: true,
+      canAccessStudies: true,
+      canAccessIA: true,
+      allowedLessonsCount: Infinity,
+      allowedModulesCount: Infinity,
+      badge: '🥈 Prata',
+      label: '2 Meses Grátis Geral Liberados',
+    };
+  }
+
+  // 6 indicados -> 1 Mês Grátis Geral
+  if (activeCount >= 6) {
+    return {
+      canAccessAll: true,
+      canAccessStudies: true,
+      canAccessIA: true,
+      allowedLessonsCount: Infinity,
+      allowedModulesCount: Infinity,
+      badge: '🥉 Bronze',
+      label: '1 Mês Grátis Geral Liberado',
+    };
+  }
+
+  // 5 indicados (total ou ativos) -> 1 Módulo Inteiro de Estudos
+  if (activeCount >= 5 || totalCount >= 5) {
+    return {
+      canAccessAll: false,
+      canAccessStudies: true,
+      canAccessIA: false,
+      allowedLessonsCount: Infinity,
+      allowedModulesCount: 1,
+      badge: '📚 Módulo Completo',
+      label: '1 Módulo Inteiro de Estudos Liberado',
+    };
+  }
+
+  // 4 indicados (total ou ativos) -> 4 Aulas Liberadas
+  if (activeCount >= 4 || totalCount >= 4) {
+    return {
+      canAccessAll: false,
+      canAccessStudies: true,
+      canAccessIA: false,
+      allowedLessonsCount: 4,
+      allowedModulesCount: 1,
+      badge: '🎬 4 Aulas',
+      label: '4 Aulas de Estudos Liberadas',
+    };
+  }
+
+  return {
+    canAccessAll: false,
+    canAccessStudies: false,
+    canAccessIA: false,
+    allowedLessonsCount: 0,
+    allowedModulesCount: 0,
+    badge: '🌱 Participante',
+    label: 'Nenhum benefício ativo',
+  };
+}
+
+/**
  * Calcula todas as métricas do painel do Embaixador
  */
 export function getAmbassadorDashboardData(user) {
@@ -119,8 +258,8 @@ export function getAmbassadorDashboardData(user) {
       activeCount: 0,
       totalCount: 0,
       inactiveCount: 0,
-      currentBenefit: 'Nenhum',
-      nextGoal: { target: 1, benefit: '1 mês grátis', missing: 1, text: 'Falta 1 indicação para 1 mês grátis' },
+      currentBenefit: 'Nenhum benefício ativo',
+      nextGoal: { target: 4, benefit: '4 Aulas Liberadas', missing: 4, text: 'Faltam 4 indicações para liberar 4 aulas' },
       referrals: [],
       isAmbassador: false,
       isFreeSubscriptionActive: false,
@@ -146,7 +285,7 @@ export function getAmbassadorDashboardData(user) {
   let isAmbassador = activeCount >= AMBASSADOR_CONFIG.AMBASSADOR_THRESHOLD;
 
   for (const m of MILESTONES) {
-    if (activeCount >= m.minActive) {
+    if (activeCount >= m.minActive || (m.minActive <= 5 && totalCount >= m.minActive)) {
       currentBenefit = m.benefit;
       level = m.level;
       badge = m.badge;
@@ -156,20 +295,53 @@ export function getAmbassadorDashboardData(user) {
 
   // 2. Próximo Objetivo
   let nextGoal = null;
-  if (activeCount < 1) {
-    nextGoal = { target: 1, benefit: '1 mês grátis', missing: 1, text: 'Falta 1 indicação ativa para ganhar 1 mês grátis' };
-  } else if (activeCount < 2) {
-    nextGoal = { target: 2, benefit: '2 meses grátis', missing: 1, text: 'Falta 1 indicação ativa para 2 meses grátis' };
-  } else if (activeCount < 3) {
-    nextGoal = { target: 3, benefit: '3 meses grátis', missing: 1, text: 'Falta 1 indicação ativa para 3 meses grátis' };
-  } else if (activeCount < 5) {
-    const missing = 5 - activeCount;
-    nextGoal = { target: 5, benefit: '6 meses grátis', missing, text: `Faltam ${missing} indicação(ões) para 6 meses grátis` };
+  const basisCount = Math.max(activeCount, totalCount);
+
+  if (basisCount < 4) {
+    const missing = 4 - basisCount;
+    nextGoal = {
+      target: 4,
+      benefit: '4 Aulas Liberadas',
+      missing,
+      text: `Falta${missing > 1 ? 'm' : ''} ${missing} indicação(ões) para liberar 4 aulas exclusivas`
+    };
+  } else if (basisCount < 5) {
+    nextGoal = {
+      target: 5,
+      benefit: '1 Módulo de Estudos',
+      missing: 1,
+      text: 'Falta 1 indicação para liberar 1 módulo inteiro de estudos'
+    };
+  } else if (activeCount < 6) {
+    const missing = 6 - activeCount;
+    nextGoal = {
+      target: 6,
+      benefit: '1 Mês Grátis Geral',
+      missing,
+      text: `Falta${missing > 1 ? 'm' : ''} ${missing} assinante(s) ativo(s) para 1 mês grátis total no app`
+    };
+  } else if (activeCount < 7) {
+    nextGoal = {
+      target: 7,
+      benefit: '2 Meses Grátis Geral',
+      missing: 1,
+      text: 'Falta 1 assinante ativo para ganhar +1 mês grátis (total 2 meses)'
+    };
   } else if (activeCount < 10) {
     const missing = 10 - activeCount;
-    nextGoal = { target: 10, benefit: '👑 Embaixador (Assinatura Gratuita)', missing, text: `Faltam ${missing} indicados ativos para ter o app 100% grátis` };
+    nextGoal = {
+      target: 10,
+      benefit: '👑 Embaixador (Assinatura Gratuita)',
+      missing,
+      text: `Faltam ${missing} assinantes ativos para ter o app 100% grátis permanente!`
+    };
   } else {
-    nextGoal = { target: 10, benefit: '👑 Nível Máximo Alcançado!', missing: 0, text: 'Você tem assinatura 100% gratuita enquanto mantiver 10 ativos!' };
+    nextGoal = {
+      target: 10,
+      benefit: '👑 Nível Máximo Alcançado!',
+      missing: 0,
+      text: 'Você tem assinatura 100% gratuita enquanto mantiver 10 ativos!'
+    };
   }
 
   // 3. Tolerância e Manutenção

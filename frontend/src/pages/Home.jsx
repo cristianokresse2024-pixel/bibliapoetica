@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { heroUrl, loadBook } from '../lib/data.js';
 import { useProgress, computeStats } from '../lib/progress.js';
 import { votdForToday } from '../lib/votd.js';
+import { getActiveDevotional } from '../data/devotionalsData.js';
 import BookCard from '../components/BookCard.jsx';
 import IAIcon from '../components/IAIcon.jsx';
 
@@ -14,6 +15,7 @@ export default function Home({ index }) {
   const nav = useNavigate();
   const [votd, setVotd] = useState(null);
   const votdRef = votdForToday();
+  const activeDev = getActiveDevotional();
 
   useEffect(() => {
     loadBook(state.version, votdRef.abbrev)
@@ -28,23 +30,18 @@ export default function Home({ index }) {
   const goalPct = Math.min(100, Math.round((stats.todayRead / (state.dailyGoal || 1)) * 100));
 
   return (
-    <div className="fade-in">
+    <div className="fade-in home-page">
       {/* Hero */}
-      <section className="hero">
-        <img className="bg" src={heroUrl('hero')} alt="" />
-        <div className="veil" />
-        <div className="inner">
-          <h1>Cresça na fé, viva transformado</h1>
-          <p>Bem-vindo ao Viva Inteligente: Bíblia ilustrada, estudos, oração e a IA Viva para caminhar com você. Ganhe experiência, conquiste medalhas e cultive o hábito diário.</p>
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-            {state.lastRead ? (
-              <button className="btn" onClick={() => nav(`/ler/${state.lastRead.abbrev}/${state.lastRead.chapter}`)}>
-                ▶ Continuar: {state.lastRead.name} {state.lastRead.chapter}
-              </button>
-            ) : (
-              <Link className="btn" to="/ler/gn/1">▶ Começar por Gênesis</Link>
-            )}
-            <Link className="btn ghost" to="/livros">📚 Explorar livros</Link>
+      <section className="hero" style={{ backgroundImage: `linear-gradient(180deg, rgba(15,10,30,0.3) 0%, rgba(15,10,30,0.92) 85%, #0f0a1e 100%), url(${heroUrl('hero')})` }}>
+        <div className="hero-content">
+          <span className="hero-tag">✦ Movimento Fé Inteligente</span>
+          <h1 className="hero-title">Viva a Palavra todos os dias</h1>
+          <p className="hero-sub">Leitura bíblica, reflexão diária, inteligência espiritual e comunidade.</p>
+          <div className="hero-actions">
+            <button type="button" className="btn" onClick={() => nav(state.lastRead ? `/ler/${state.lastRead.abbrev}/${state.lastRead.chapter}` : '/ler/gn/1')}>
+              {state.lastRead ? `Continuar: ${state.lastRead.name} ${state.lastRead.chapter}` : 'Começar por Gênesis 1'}
+            </button>
+            <Link to="/ia" className="btn ghost">Perguntar à IA Viva</Link>
           </div>
         </div>
       </section>
@@ -90,8 +87,8 @@ export default function Home({ index }) {
           <Link to="/devocional" className="shortcut sc-devotional" style={{ border: '1px solid rgba(251,191,36,0.3)', background: 'linear-gradient(135deg, rgba(251,191,36,0.08) 0%, rgba(20,15,35,0.6) 100%)' }}>
             <span className="sc-ic">🎙️</span>
             <span className="sc-title" style={{ color: '#fde68a' }}>Devocional Diário</span>
-            <span className="sc-desc">Ouça a palavra de hoje em áudio</span>
-            <span className="sc-badge gold-badge" style={{ fontSize: 11 }}>🌟 Áudio do Dia</span>
+            <span className="sc-desc" style={{ color: '#e2e8f0', fontWeight: 600 }}>{activeDev ? activeDev.title : 'Ouça a palavra de hoje em áudio'}</span>
+            <span className="sc-badge gold-badge" style={{ fontSize: 11 }}>🌟 {activeDev?.tag || 'Áudio do Dia'}</span>
           </Link>
           <Link to="/oracao" className="shortcut sc-prayer">
             <span className="sc-ic">🕊️</span>

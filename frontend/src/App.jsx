@@ -80,6 +80,7 @@ export default function App() {
                 title="Aulas e Cursos Bíblicos"
                 description="Acesse todas as aulas, trilhas teológicas e apostilas exclusivas para membros."
                 icon="🎓"
+                allowReferralStudies={true}
               >
                 <Studies />
               </SubscriptionGuard>

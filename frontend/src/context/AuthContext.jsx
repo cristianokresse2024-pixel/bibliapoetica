@@ -1,5 +1,6 @@
-﻿import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import { getCurrentSession, loginUser, registerUser, logoutUser } from '../lib/authService.js';
+import { hydrateProgressFromCloud } from '../lib/progress.js';
 
 const AuthContext = createContext(null);
 
@@ -14,6 +15,18 @@ export function AuthProvider({ children }) {
     const session = getCurrentSession();
     setUser(session);
     setLoading(false);
+
+    // Se houver sessão ativa, sincroniza o progresso mais recente da nuvem em segundo plano
+    if (session?.id) {
+      fetch(`/api/user/progress?userId=${encodeURIComponent(session.id)}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data?.progress) {
+            hydrateProgressFromCloud(data.progress);
+          }
+        })
+        .catch(() => {});
+    }
   }, []);
 
   const openAuthModal = (mode = 'login', message = '') => {
