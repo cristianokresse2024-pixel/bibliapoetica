@@ -1,7 +1,8 @@
-﻿import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useProgress, recordPrayer, setPrayerGoal, setPrayerReminder } from '../lib/progress.js';
 import { useToast } from '../lib/toast.jsx';
 import { beep, fmtHMS, ensureNotifyPermission, notify } from '../lib/notify.js';
+import { requestScreenWakeLock, releaseScreenWakeLock } from '../lib/wakeLock.js';
 
 const PRESETS = [5, 10, 15, 20, 30, 45, 60];
 
@@ -36,16 +37,26 @@ export default function Prayer() {
     }
   }, [volume]);
 
-  // Limpeza de recursos ao desmontar
+  // Limpeza de recursos ao desmontar (garante que áudio, timer e tela voltem ao normal ao sair do Lugar Secreto)
   useEffect(() => {
     return () => {
       clearInterval(tickRef.current);
+      releaseScreenWakeLock();
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current.currentTime = 0;
       }
     };
   }, []);
+
+  // Mantém a tela acesa continuamente enquanto durar a oração no Lugar Secreto
+  useEffect(() => {
+    if (phase === 'praying') {
+      requestScreenWakeLock().catch(() => {});
+    } else {
+      releaseScreenWakeLock();
+    }
+  }, [phase]);
 
   function playAudioDirectly() {
     if (!audioRef.current) return;
@@ -69,7 +80,10 @@ export default function Prayer() {
   }
 
   function start() {
-    // 1. Toca o áudio no mesmo frame do clique para evitar bloqueio de autoplay do navegador
+    // 1. Manter a tela do celular sempre acesa durante toda a oração no Lugar Secreto
+    requestScreenWakeLock().catch(() => {});
+
+    // 2. Toca o áudio no mesmo frame do clique para evitar bloqueio de autoplay do navegador
     if (musicMode === 'music') {
       playAudioDirectly();
     } else if (audioRef.current) {
@@ -77,10 +91,10 @@ export default function Prayer() {
       setIsPlaying(false);
     }
 
-    // 2. Notificações
+    // 3. Notificações
     ensureNotifyPermission().catch(() => {});
 
-    // 3. Inicialização do cronômetro
+    // 4. Inicialização do cronômetro
     const total = goalMin * 60;
     setPrayerGoal(goalMin);
     setRemaining(total);
@@ -134,6 +148,7 @@ export default function Prayer() {
 
   function finish(seconds, completedFull) {
     clearInterval(tickRef.current);
+    releaseScreenWakeLock();
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
@@ -148,6 +163,7 @@ export default function Prayer() {
   }
 
   function stopEarly() {
+    releaseScreenWakeLock();
     if (elapsed < 30) {
       clearInterval(tickRef.current);
       if (audioRef.current) {
@@ -232,7 +248,12 @@ export default function Prayer() {
               </button>
             </div>
 
-            <button className="btn big-btn" onClick={start} style={{ marginTop: 14 }}>
+            <p className="muted" style={{ fontSize: 12.5, textAlign: 'center', margin: '14px 0 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+              <span>💡</span>
+              <span>A tela do celular permanecerá acesa durante toda a oração.</span>
+            </p>
+
+            <button className="btn big-btn" onClick={start} style={{ marginTop: 10 }}>
               🙏 Entrar no Lugar Secreto
             </button>
           </div>
@@ -263,6 +284,28 @@ export default function Prayer() {
                 <div className="timer-big">{fmtHMS(Math.max(0, remaining))}</div>
                 <div className="timer-sub">restante · orando há {fmtHMS(elapsed)}</div>
               </div>
+            </div>
+
+            {/* Indicador visual de tela mantida acesa */}
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 6,
+                padding: '4px 14px',
+                borderRadius: 20,
+                background: 'rgba(251,191,36,0.1)',
+                border: '1px solid rgba(251,191,36,0.25)',
+                color: '#fde68a',
+                fontSize: 12,
+                fontWeight: 500,
+                margin: '10px auto 4px',
+                width: 'fit-content',
+              }}
+            >
+              <span style={{ fontSize: 13 }}>💡</span>
+              <span>Tela mantida acesa durante toda a oração</span>
             </div>
 
             {/* Painel do Fundo Musical Durante a Oração */}
