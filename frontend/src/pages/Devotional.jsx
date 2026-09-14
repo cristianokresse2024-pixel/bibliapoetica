@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   getActiveDevotional,
   getPastDevotionals,
+  getUpcomingDevotionals,
   getDevotionalAudioUrls,
 } from '../data/devotionalsData.js';
 import { useToast } from '../lib/toast.jsx';
@@ -28,6 +29,7 @@ export default function Devotional() {
   const audioRef = useRef(null);
   const sources = currentDevotional ? getDevotionalAudioUrls(currentDevotional.audioFileName) : [];
   const pastList = getPastDevotionals();
+  const upcomingList = getUpcomingDevotionals();
 
   // Troca de devocional
   const handleSelectDevotional = (dev) => {
@@ -382,6 +384,44 @@ export default function Devotional() {
           )}
         </div>
       </section>
+
+      {/* Próximos Lançamentos Programados */}
+      {upcomingList.length > 0 && (
+        <section className="section" style={{ marginTop: 24 }}>
+          <h3 style={{ fontSize: 20, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span>⏰</span> Próximos Lançamentos Programados
+          </h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {upcomingList.map((item) => (
+              <div
+                key={item.id}
+                style={{
+                  background: 'linear-gradient(135deg, rgba(251,191,36,0.06) 0%, rgba(20,15,35,0.7) 100%)',
+                  border: '1px dashed rgba(251,191,36,0.3)',
+                  borderRadius: 12,
+                  padding: '14px 18px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                <div>
+                  <span style={{ fontSize: 11.5, color: '#fbbf24', display: 'block', marginBottom: 2 }}>
+                    ⏰ Liberação automática: {new Date(item.releaseAt).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })} às 05:00 da manhã
+                  </span>
+                  <h4 style={{ margin: 0, fontSize: 16, color: '#f1f5f9' }}>{item.title}</h4>
+                  {item.verseRef && (
+                    <span style={{ fontSize: 12.5, color: 'var(--text-sub)' }}>📖 {item.verseRef}</span>
+                  )}
+                </div>
+                <span className="sc-badge gold-badge" style={{ fontSize: 11 }}>
+                  🔒 Em breve às 05h
+                </span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Histórico: Devocionais Anteriores */}
       {pastList.length > 0 && (
