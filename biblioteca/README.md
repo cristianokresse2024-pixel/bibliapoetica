@@ -1,42 +1,32 @@
-# 📖 Biblioteca Teológica Local — IA Viva (RAG)
+# 📖 Biblioteca Teológica — Tudo em um só lugar
 
-Este diretório armazena os comentários bíblicos, léxicos (hebraico/grego), dicionários e livros teológicos em **PDF**, **Markdown (.md)** e **Texto (.txt)**.
-
----
-
-## 📁 Estrutura de Pastas
-
-```text
-biblioteca/
-├── comentarios/     <-- Comentários bíblicos versículo a versículo (ex: Mateus, Romanos, Salmos)
-├── lexicos/         <-- Léxicos de hebraico e grego, estudos de palavras e dicionários bíblicos
-└── livros/          <-- Teologia sistemática, história bíblica e livros devocionais profundos
-```
+Esta pasta é o local único para você colocar **todos os seus livros, comentários bíblicos, léxicos, dicionários e teologias** em **PDF**, **Markdown (.md)** ou **Texto (.txt)**.
 
 ---
 
-## 🚀 Como Funciona o Pipeline de Indexação
+## 📥 Como Usar (Simples e Direto)
 
-1. **Adicionar Livros:**
-   Basta colar seus arquivos em .pdf, .md ou .txt dentro de qualquer uma das pastas acima.
+1. **Coloque tudo aqui:**
+   Basta colar todos os seus arquivos em `.pdf`, `.md` ou `.txt` diretamente aqui dentro da pasta `biblioteca`.
+   - **Não precisa criar subpastas!** Pode deixar todos os livros juntos nesta mesma pasta.
 
-2. **Executar a Indexação:**
-   No terminal do projeto, execute:
+2. **Execute a Indexação:**
+   No terminal da raiz do projeto, execute:
    ```bash
    npm run index:theology
    ```
-   O script extrairá os textos dos PDFs, dividirá em trechos temáticos e associará cada trecho aos livros e versículos bíblicos correspondentes.
+   O script lerá automaticamente todos os PDFs e documentos desta pasta, identificando livros bíblicos, capítulos, versículos e termos teológicos.
 
-3. **Consulta Automática no App:**
-   Sempre que um usuário selecionar um versículo na Bíblia e tocar em **"Explicar"**, o sistema consulta prioritariamente esta base teológica para fundamentar a explicação em 3 partes:
-   - **O que estava acontecendo** (cenário histórico e cultural)
-   - **O que o texto realmente significa** (verdade central descomplicada)
-   - **Para a sua vida hoje** (aplicação prática para o leitor)
+3. **Pronto! Consulta Automática no App:**
+   Ao selecionar um versículo na Bíblia e tocar em **"Explicar"**, a IA Viva consulta prioritariamente o conteúdo desta pasta e responde estruturada em 3 partes:
+   - 🏛️ **O que estava acontecendo**: Cenário histórico e cultural rápido.
+   - 💡 **O que o texto realmente significa**: A verdade central descomplicada.
+   - 🌿 **Para a sua vida hoje**: Aplicação prática para o cotidiano.
 
 ---
 
 ## 🔒 Diretriz de Voz Própria e Zero Plágio
 A IA utiliza esta biblioteca exclusivamente como base de dados interna:
 - **É proibido** copiar trechos literais dos livros.
-- **É proibido** fazer citações acadêmicas ("de acordo com o autor X...").
+- **É proibido** fazer citações acadêmicas ("segundo o autor X...").
 - A explicação é sempre gerada com a **voz própria**, simples, viva e transformadora da IA Viva.

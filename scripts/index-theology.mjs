@@ -18,8 +18,7 @@ const ROOT_DIR = path.resolve(__dirname, '..');
 
 const SCAN_DIRS = [
   path.resolve(ROOT_DIR, 'biblioteca'),
-  path.resolve(ROOT_DIR, 'docs'),
-  path.resolve(ROOT_DIR, 'knowledge')
+  path.resolve(ROOT_DIR, 'docs')
 ];
 
 const OUTPUT_INDEX_FILE = path.resolve(ROOT_DIR, 'knowledge', 'theology-index.json');
