@@ -7,6 +7,21 @@
 
 export const DEVOTIONALS = [
   {
+    id: 'dia-47-guardar-fe',
+    title: 'VOCÊ NÃO FOI CHAMADO PARA GUARDAR A SUA FÉ',
+    tag: '🔥 DIA 47 DE 50 | Rumo ao Pentecostes',
+    dateFormatted: 'Dia 47 de 50 • Rumo ao Pentecostes',
+    verse: '“E disse-lhes: Ide por todo o mundo, pregai o evangelho a toda criatura.”',
+    verseRef: 'Marcos 16:15',
+    author: 'Pr. Cristiano Kresse',
+    audioFileName: 'devocional-dia-47.m4a',
+    // ⏰ AGENDADO PARA LIBERAÇÃO AUTOMÁTICA EM 16/09 ÀS 05:00 DA MANHÃ (Fuso de Brasília)
+    releaseAt: '2026-09-16T05:00:00-03:00',
+    reflection: 'Você não recebeu o evangelho para guardá-lo apenas para si mesmo.\n\nNo Dia 47 da nossa jornada rumo ao Pentecostes — faltando apenas 3 dias —, Jesus nos faz um chamado que vai além de nós mesmos: “Ide por todo o mundo e pregai o evangelho a toda criatura” (Marcos 16:15). O mesmo Jesus que diz “venha”, também diz “vai”. A presença de Deus nos acolhe, nos cura e nos fortalece, mas também nos move em direção às pessoas.\n\nTestemunhar não é saber todas as respostas teológicas ou falar de cima de um púlpito; é falar com verdade e sinceridade sobre o que Jesus tem feito na sua vida. Suas atitudes diárias precisam confirmar aquilo que a sua boca anuncia: quando você ama, perdoa, escuta sem pressa e serve com misericórdia, o Evangelho se torna visível na vida real.',
+    challenge: 'Escolha uma pessoa hoje e dê 3 passos práticos:\n1. Ore por ela e apresente o nome dela a Deus em secreto;\n2. Aproxime-se com atenção sincera (envie uma mensagem, pergunte como ela está e ouça sem pressa);\n3. Compartilhe uma palavra de esperança se houver abertura no coração dela.\n\n🔥 Propósito da Jornada: “Espírito Santo, enche o meu coração da Tua presença, capacita-me com poder e faz-me disponível para ser Tua testemunha onde eu estiver.”',
+    callToAction: 'Compartilhe este devocional com alguém hoje! A fé que recebemos não foi feita para ficar escondida, mas para transformar vidas!',
+  },
+  {
     id: 'dia-46-fome-de-deus',
     title: 'A FOME QUE FAZ VOCÊ BUSCAR MAIS A DEUS',
     tag: '🔥 DIA 46 DE 50 | Rumo ao Pentecostes',
