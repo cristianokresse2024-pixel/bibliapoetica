@@ -21,9 +21,14 @@ firebase-debug.log
 knowledge/**/*.pdf
 knowledge/**/*.docx
 knowledge/**/*.epub
+knowledge/index/books/
+knowledge/theology/
 biblioteca/**/*.pdf
 biblioteca/**/*.docx
 biblioteca/**/*.epub
+biblioteca/*.pdf
+biblioteca/*.docx
+biblioteca/*.epub
 docs/**/*.pdf
 docs/**/*.docx
 docs/**/*.epub

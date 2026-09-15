@@ -130,9 +130,12 @@ function extractBibleReferences(text, fileName = '') {
         refs.add(book.abbrev);
       }
 
-      if (!bookFound && lower.includes(m)) {
-        refs.add(book.name);
-        refs.add(book.abbrev);
+      if (!bookFound) {
+        const wordRegex = new RegExp(`\\b${escapedM}\\b`, 'i');
+        if (wordRegex.test(lower)) {
+          refs.add(book.name);
+          refs.add(book.abbrev);
+        }
       }
     }
   }
@@ -164,10 +167,20 @@ function findTheologyFiles(dir) {
   return results;
 }
 
+function isNoiseChunk(text) {
+  if (!text || text.length < 120) return true;
+  // Detecta páginas de sumário, índices pontilhados (... ...)
+  const dotCount = (text.match(/\.{3,}/g) || []).length;
+  if (dotCount >= 3) return true;
+  const dotsAndDashes = (text.match(/[\.\_\-]{2,}/g) || []).join('').length;
+  if (dotsAndDashes / text.length > 0.12) return true;
+  return false;
+}
+
 /**
  * Divide o texto do livro em fragmentos inteligentes com sobreposição
  */
-function chunkText(rawText, sourceName, chunkSize = 900, overlap = 150) {
+function chunkText(rawText, chunkSize = 950, overlap = 150) {
   const clean = rawText
     .replace(/\r\n/g, '\n')
     .replace(/\n{3,}/g, '\n\n')
@@ -175,7 +188,6 @@ function chunkText(rawText, sourceName, chunkSize = 900, overlap = 150) {
 
   if (!clean) return [];
 
-  // Tenta dividir por parágrafos para manter coerência semântica
   const paragraphs = clean.split(/\n\s*\n/);
   const chunks = [];
   let currentChunk = '';
@@ -187,21 +199,22 @@ function chunkText(rawText, sourceName, chunkSize = 900, overlap = 150) {
     if (currentChunk.length + trimmed.length <= chunkSize) {
       currentChunk += (currentChunk ? '\n\n' : '') + trimmed;
     } else {
-      if (currentChunk.length >= 200) {
+      if (currentChunk.length >= 150 && !isNoiseChunk(currentChunk)) {
         chunks.push(currentChunk);
       }
-      // Sobreposição com parte do bloco anterior
       const overlapText = currentChunk.slice(-overlap).trim();
       currentChunk = (overlapText ? overlapText + '\n\n' : '') + trimmed;
     }
   }
 
-  if (currentChunk.length >= 150) {
+  if (currentChunk.length >= 150 && !isNoiseChunk(currentChunk)) {
     chunks.push(currentChunk);
   }
 
   return chunks;
 }
+
+const BOOKS_CACHE_DIR = path.resolve(OUTPUT_INDEX_DIR, 'books');
 
 async function runIndexer() {
   console.log('📚 Iniciando Pipeline de Indexação da Biblioteca Teológica...');
@@ -216,15 +229,46 @@ async function runIndexer() {
   const uniqueFiles = Array.from(new Set(allFiles));
   console.log(`📁 Encontrados ${uniqueFiles.length} arquivos teológicos para análise.`);
 
-  const index = [];
+  if (!fs.existsSync(OUTPUT_INDEX_DIR)) {
+    fs.mkdirSync(OUTPUT_INDEX_DIR, { recursive: true });
+  }
+  if (!fs.existsSync(BOOKS_CACHE_DIR)) {
+    fs.mkdirSync(BOOKS_CACHE_DIR, { recursive: true });
+  }
+
+  const fullIndex = [];
   let totalChunks = 0;
+  let fileIndex = 0;
 
   for (const filePath of uniqueFiles) {
+    fileIndex++;
     const relPath = path.relative(ROOT_DIR, filePath);
     const fileName = path.basename(filePath);
     const ext = path.extname(filePath).toLowerCase();
+    const stat = fs.statSync(filePath);
+    const sizeMb = (stat.size / (1024 * 1024)).toFixed(1);
 
-    console.log(`⏳ Processando: ${fileName} (${relPath})`);
+    // Identificador único para cache incremental
+    const cleanId = fileName.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase().slice(0, 60);
+    const cacheFilePath = path.join(BOOKS_CACHE_DIR, `${cleanId}.json`);
+
+    // 1. Verifica se já existe cache válido e atualizado
+    if (fs.existsSync(cacheFilePath)) {
+      try {
+        const cacheStat = fs.statSync(cacheFilePath);
+        if (cacheStat.mtimeMs >= stat.mtimeMs) {
+          const cachedChunks = JSON.parse(fs.readFileSync(cacheFilePath, 'utf8'));
+          if (Array.isArray(cachedChunks) && cachedChunks.length > 0) {
+            console.log(`⚡ [${fileIndex}/${uniqueFiles.length}] Usando cache: ${fileName} (${cachedChunks.length} fragmentos)`);
+            fullIndex.push(...cachedChunks);
+            totalChunks += cachedChunks.length;
+            continue;
+          }
+        }
+      } catch {}
+    }
+
+    console.log(`⏳ [${fileIndex}/${uniqueFiles.length}] Processando: ${fileName} (${sizeMb} MB)`);
     let fileText = '';
 
     try {
@@ -246,48 +290,93 @@ async function runIndexer() {
       }
 
       if (!fileText || fileText.trim().length < 50) {
-        console.log(`⚠️ Arquivo com pouco conteúdo de texto: ${fileName}`);
+        console.log(`⚠️ Arquivo com pouco conteúdo de texto extraível: ${fileName}`);
         continue;
       }
 
-      const chunks = chunkText(fileText);
-      console.log(`   └─ Gerados ${chunks.length} fragmentos contextuais.`);
+      const rawChunks = chunkText(fileText);
+      const bookChunks = [];
 
-      chunks.forEach((content, idx) => {
+      rawChunks.forEach((content, idx) => {
         const bibleRefs = extractBibleReferences(content, fileName);
         const baseName = path.parse(fileName).name;
-        index.push({
+        
+        // Mantém fragmentos que tenham referências bíblicas ou termos teológicos
+        const keywords = Array.from(new Set([
+          ...bibleRefs,
+          ...fileName.replace(/[^a-zA-Z0-9À-ÿ]/g, ' ').split(/\s+/).filter(w => w.length > 2)
+        ]));
+
+        bookChunks.push({
           id: `${baseName}-chunk-${idx + 1}`,
           source: fileName,
           path: relPath,
           title: `${baseName} (Parte ${idx + 1})`,
           content: content.trim(),
           bibleRefs,
-          keywords: Array.from(new Set([
-            ...bibleRefs,
-            ...fileName.replace(/[^a-zA-Z0-9À-ÿ]/g, ' ').split(/\s+/).filter(w => w.length > 2)
-          ]))
+          keywords
         });
-        totalChunks++;
       });
+
+      // Salva o cache imediato deste livro no disco
+      fs.writeFileSync(cacheFilePath, JSON.stringify(bookChunks, null, 2), 'utf8');
+      console.log(`   └─ Salvos ${bookChunks.length} fragmentos em cache.`);
+
+      fullIndex.push(...bookChunks);
+      totalChunks += bookChunks.length;
     } catch (err) {
       console.error(`❌ Erro ao ler ${fileName}:`, err.message);
     }
   }
 
-  // Assegura diretório de saída
-  if (!fs.existsSync(OUTPUT_INDEX_DIR)) {
-    fs.mkdirSync(OUTPUT_INDEX_DIR, { recursive: true });
+  // Particionamento inteligente por livro bíblico para buscas instantâneas
+  const byBookDir = path.resolve(ROOT_DIR, 'knowledge', 'theology', 'by-book');
+  if (!fs.existsSync(byBookDir)) {
+    fs.mkdirSync(byBookDir, { recursive: true });
   }
 
-  fs.writeFileSync(OUTPUT_INDEX_FILE, JSON.stringify(index, null, 2), 'utf8');
-  fs.writeFileSync(path.resolve(OUTPUT_INDEX_DIR, 'theology.json'), JSON.stringify(index, null, 2), 'utf8');
+  const byBookMap = {};
+  for (const b of BIBLE_BOOKS) byBookMap[b.abbrev] = [];
+  const generalList = [];
+
+  for (const chunk of fullIndex) {
+    let assigned = false;
+    for (const b of BIBLE_BOOKS) {
+      if (chunk.bibleRefs && (chunk.bibleRefs.includes(b.name) || chunk.bibleRefs.includes(b.abbrev))) {
+        byBookMap[b.abbrev].push(chunk);
+        assigned = true;
+      }
+    }
+    if (!assigned) {
+      generalList.push(chunk);
+    }
+  }
+
+  let booksCount = 0;
+  for (const [abbrev, items] of Object.entries(byBookMap)) {
+    if (items.length > 0) {
+      booksCount++;
+      fs.writeFileSync(path.join(byBookDir, `${abbrev}.json`), JSON.stringify(items, null, 2), 'utf8');
+    }
+  }
+  fs.writeFileSync(path.join(byBookDir, 'geral.json'), JSON.stringify(generalList, null, 2), 'utf8');
+
+  // Gera índice curado de topo para buscas gerais (mantém abaixo de 30MB para git e serverless)
+  const sampleCurated = [];
+  for (const [abbrev, items] of Object.entries(byBookMap)) {
+    sampleCurated.push(...items.slice(0, 100));
+  }
+  sampleCurated.push(...generalList.slice(0, 500));
+
+  fs.writeFileSync(OUTPUT_INDEX_FILE, JSON.stringify(sampleCurated, null, 2), 'utf8');
+  fs.writeFileSync(path.resolve(OUTPUT_INDEX_DIR, 'theology.json'), JSON.stringify(sampleCurated, null, 2), 'utf8');
 
   console.log('====================================================');
   console.log(`✅ Indexação Teológica Concluída!`);
   console.log(`   - Arquivos processados: ${uniqueFiles.length}`);
   console.log(`   - Total de fragmentos indexados: ${totalChunks}`);
-  console.log(`   - Arquivo de índice gerado: ${OUTPUT_INDEX_FILE}`);
+  console.log(`   - Livros bíblicos particionados: ${booksCount}`);
+  console.log(`   - Arquivo de índice mestre gerado: ${OUTPUT_INDEX_FILE}`);
   console.log('====================================================');
 }
 
