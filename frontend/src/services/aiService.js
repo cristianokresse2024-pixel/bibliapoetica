@@ -14,13 +14,19 @@ export function aiReady() {
  * Envia uma pergunta para a IA Viva.
  * @param {string} question
  * @param {Array<{role:'user'|'assistant', content:string}>} history
+ * @param {{passage?:{book:string, chapter:number|string, verseNum:number|string, verseText:string}, mode?:string}} [options]
  * @returns {Promise<{text:string, model?:string, provider?:string}>}
  */
-export async function askIAViva(question, history = []) {
+export async function askIAViva(question, history = [], options = {}) {
   const res = await fetch(API_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ question, history }),
+    body: JSON.stringify({
+      question,
+      history,
+      passage: options.passage,
+      mode: options.mode,
+    }),
   });
 
   if (!res.ok) {

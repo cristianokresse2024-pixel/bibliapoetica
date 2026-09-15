@@ -8,9 +8,11 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "data": "node scripts/build-bibles.mjs"
+    "data": "node scripts/build-bibles.mjs",
+    "index:theology": "node scripts/index-theology.mjs"
   },
   "dependencies": {
+    "pdf-parse": "^2.4.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.2"

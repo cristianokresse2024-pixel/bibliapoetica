@@ -21,6 +21,12 @@ firebase-debug.log
 knowledge/**/*.pdf
 knowledge/**/*.docx
 knowledge/**/*.epub
+biblioteca/**/*.pdf
+biblioteca/**/*.docx
+biblioteca/**/*.epub
+docs/**/*.pdf
+docs/**/*.docx
+docs/**/*.epub
 !audio/lugar-secreto.mp3
 !frontend/public/audio/lugar-secreto.mp3
 !dist/audio/lugar-secreto.mp3

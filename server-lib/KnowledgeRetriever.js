@@ -4,8 +4,9 @@ import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const ROOT_DIR = path.resolve(__dirname, '..', '..');
+const ROOT_DIR = path.resolve(__dirname, '..');
 const INDEX_DIR = path.resolve(ROOT_DIR, 'knowledge', 'index');
+const THEOLOGY_INDEX_FILE = path.resolve(ROOT_DIR, 'knowledge', 'theology-index.json');
 const SINGLE_INDEX_FILE = path.resolve(ROOT_DIR, 'knowledge', 'knowledge-index.json');
 
 const STOP_WORDS = new Set([
@@ -31,18 +32,45 @@ function getKnowledgeIndex() {
   }
   try {
     const combined = [];
+    const seenIds = new Set();
+
+    const addItems = (items) => {
+      if (!Array.isArray(items)) return;
+      for (const item of items) {
+        const id = item.id || `${item.source}-${item.title}`;
+        if (!seenIds.has(id)) {
+          seenIds.add(id);
+          combined.push(item);
+        }
+      }
+    };
+
+    if (fs.existsSync(THEOLOGY_INDEX_FILE)) {
+      try {
+        const content = fs.readFileSync(THEOLOGY_INDEX_FILE, 'utf8');
+        addItems(JSON.parse(content));
+      } catch (e) {
+        console.warn('Aviso ao carregar theology-index.json:', e.message);
+      }
+    }
+
     if (fs.existsSync(INDEX_DIR)) {
       const files = fs.readdirSync(INDEX_DIR).filter((f) => f.endsWith('.json')).sort();
       for (const f of files) {
-        const content = fs.readFileSync(path.join(INDEX_DIR, f), 'utf8');
-        const parsed = JSON.parse(content);
-        if (Array.isArray(parsed)) combined.push(...parsed);
+        try {
+          const content = fs.readFileSync(path.join(INDEX_DIR, f), 'utf8');
+          addItems(JSON.parse(content));
+        } catch {}
       }
-    } else if (fs.existsSync(SINGLE_INDEX_FILE)) {
-      const content = fs.readFileSync(SINGLE_INDEX_FILE, 'utf8');
-      const parsed = JSON.parse(content);
-      if (Array.isArray(parsed)) combined.push(...parsed);
     }
+
+    if (fs.existsSync(SINGLE_INDEX_FILE)) {
+      try {
+        const content = fs.readFileSync(SINGLE_INDEX_FILE, 'utf8');
+        addItems(JSON.parse(content));
+      } catch {}
+    }
+
     if (combined.length > 0) {
       cachedIndex = combined;
       lastLoaded = now;
@@ -62,7 +90,7 @@ function normalize(text) {
     .replace(/[^\w\s]/g, ' ');
 }
 
-export function retrieveContext(query, maxResults = 2) {
+export function retrieveContext(query, maxResults = 3) {
   if (!query || typeof query !== 'string') return '';
   const index = getKnowledgeIndex();
   if (!index || index.length === 0) return '';
@@ -81,10 +109,23 @@ export function retrieveContext(query, maxResults = 2) {
     const cleanTitle = normalize(item.title || '');
     const cleanContent = normalize(item.content || '');
     const keywords = (item.keywords || []).map(normalize);
+    const bibleRefs = (item.bibleRefs || []).map(normalize);
 
+    // 1. Prioridade máxima para correspondência de livro, capítulo e versículo bíblico
+    for (const ref of bibleRefs) {
+      if (ref && ref.length >= 3 && cleanQuery.includes(ref)) {
+        score += 50; // Referência direta encontrada!
+      }
+    }
+
+    // 2. Pontuação léxica e temática
     let matchedTermsCount = 0;
     for (const term of terms) {
       let termMatched = false;
+      if (bibleRefs.some((r) => r.includes(term))) {
+        score += 15;
+        termMatched = true;
+      }
       if (keywords.includes(term)) {
         score += 8;
         termMatched = true;
@@ -108,8 +149,8 @@ export function retrieveContext(query, maxResults = 2) {
       score += matchedTermsCount * 6;
     }
 
-    const minScore = terms.length >= 2 ? 20 : 12;
-    if (score >= minScore && (terms.length < 2 || matchedTermsCount >= 2 || cleanQuery.includes(cleanTitle))) {
+    const minScore = terms.length >= 2 ? 16 : 10;
+    if (score >= minScore) {
       scored.push({ item, score });
     }
   }
@@ -119,8 +160,9 @@ export function retrieveContext(query, maxResults = 2) {
 
   if (top.length === 0) return '';
 
+  // Formata o contexto teológico como consulta interna da IA (sem exigir citações externas)
   const formattedPieces = top.map(({ item }) => {
-    return `[Fonte: ${item.source} — ${item.title}]\n${item.content}`;
+    return `[Consulta Teológica Interna: ${item.source} — ${item.title}]\n${item.content}`;
   });
 
   return formattedPieces.join('\n\n---\n\n');

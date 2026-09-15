@@ -30,16 +30,29 @@ export default function VerseAIModal({
     }
     setLoading(true);
     setError('');
-    const prompt = `Explique de forma profunda, clara e prática o versículo bíblico ${refLabel} (${version.toUpperCase()}): "${verseText}".
-Vá direto ao estudo sem saudações introdutórias genéricas.
-Organize em:
-- 📖 **Contexto e Cenário**: O que estava acontecendo de forma viva e simples.
-- 💡 **Significado e Revelação**: A verdade central que esse versículo ensina.
-- 🌿 **Aplicação Prática**: Como viver isso hoje no cotidiano e na família.
-- 🙏 **Oração para Hoje**: Uma oração sincera e breve.`;
+    const prompt = `Explique de forma viva, profunda e acessível o versículo bíblico ${refLabel} (${version.toUpperCase()}): "${verseText}".
+Vá direto à explicação sem saudações introdutórias genéricas nem despedidas.
+Estruture a resposta obrigatoriamente nestas 3 partes:
+
+### 🏛️ O que estava acontecendo
+Cenário histórico, cultural e narrativo rápido e simples daquele versículo: quem estava falando, em que momento e para quem.
+
+### 💡 O que o texto realmente significa
+A verdade central e espiritual da passagem explicada em linguagem clara, humana e descomplicada, revelando o coração de Deus.
+
+### 🌿 Para a sua vida hoje
+Aplicação prática, encorajadora e transformadora para o cotidiano do leitor.`;
 
     try {
-      const res = await askIAViva(prompt);
+      const res = await askIAViva(prompt, [], {
+        passage: {
+          book: book.name,
+          chapter,
+          verseNum,
+          verseText,
+        },
+        mode: 'explain',
+      });
       setExplanation(res.text);
     } catch (e) {
       if (e.status === 429) {
@@ -136,10 +149,10 @@ Organize em:
                     </div>
                   </div>
                   <p style={{ color: '#fde68a', fontWeight: 600, fontSize: 15, margin: '8px 0 0' }}>
-                    Examinando as Escrituras e preparando explicação...
+                    Consultando biblioteca teológica e preparando explicação...
                   </p>
                   <p className="muted" style={{ fontSize: 13, marginTop: 4 }}>
-                    Consultando o contexto bíblico de {book.name} e aplicações pastorais.
+                    Analisando o cenário histórico e espiritual de {book.name} {chapter}:{verseNum}.
                   </p>
                 </div>
               )}

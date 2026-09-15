@@ -102,7 +102,7 @@ export default async function handler(req, res) {
         body = JSON.parse(body);
       } catch {}
     }
-    const { question, history } = body || {};
+    const { question, history, passage, mode } = body || {};
 
     if (!question || typeof question !== 'string') {
       res.status(400).json({ error: 'Pergunta obrigatória.' });
@@ -114,7 +114,13 @@ export default async function handler(req, res) {
     }
 
     const safeHistory = Array.isArray(history) ? history.slice(-8) : [];
-    const context = retrieveContext(question);
+    
+    // Constrói termo de busca teológica com livro, capítulo e versículo prioritários
+    const queryForContext = passage
+      ? `${passage.book || ''} ${passage.chapter || ''}:${passage.verseNum || ''} ${passage.verseText || ''} ${question}`
+      : question;
+
+    const context = retrieveContext(queryForContext, 3);
     const answer = await generateAnswer({ question, history: safeHistory, context });
 
     globalCount += 1;
