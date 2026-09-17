@@ -7,6 +7,21 @@
 
 export const DEVOTIONALS = [
   {
+    id: 'dia-48-coracao-livre',
+    title: 'UM CORAÇÃO LIVRE PARA RECEBER',
+    tag: '🔥 DIA 48 DE 50 | Rumo ao Pentecostes',
+    dateFormatted: 'Dia 48 de 50 • Rumo ao Pentecostes',
+    verse: '“Antes sede uns para com os outros benignos, misericordiosos, perdoando-vos uns aos outros, como também Deus vos perdoou em Cristo.”',
+    verseRef: 'Efésios 4:32',
+    author: 'Pr. Cristiano Kresse',
+    audioFileName: 'devocional-dia-48.m4a',
+    // ⏰ AGENDADO PARA LIBERAÇÃO AUTOMÁTICA EM 17/09 ÀS 05:00 DA MANHÃ (Fuso de Brasília)
+    releaseAt: '2026-09-17T05:00:00-03:00',
+    reflection: 'Faltam agora apenas dois dias para chegar ao final da nossa jornada rumo ao Pentecostes. E talvez nesses últimos dias Deus queira trabalhar em lugares que a gente não costuma mostrar para ninguém.\n\nExiste algo que pode ocupar o coração silenciosamente: a mágoa. Às vezes a gente continua orando, indo à igreja e ouvindo a Palavra, mas carrega dentro de si uma conversa que nunca conseguiu esquecer, uma injustiça que ainda dói, uma decepção que ficou aberta. Hoje, Deus nos convida a olhar para isso — não para nos condenar, mas para nos libertar desse sentimento.\n\nPerdoar não significa dizer que o que aconteceu foi certo, nem significa permitir novamente que alguém ultrapasse os seus limites. Perdoar significa colocar aquela dívida nas mãos de Deus e decidir não continuar sendo prisioneiro daquilo que fizeram contra você. Um coração cheio de Deus não precisa ser governado pela mágoa: como uma casa cheia de coisas acumuladas, antes de colocar algo novo, primeiro é preciso abrir espaço e remover aquilo que impede o seu coração de viver em liberdade.',
+    challenge: 'Peça hoje ao Espírito Santo para trazer à sua memória qualquer pessoa ou situação que ainda ocupa espaço doloroso no seu coração. Não tente resolver sozinho: entregue nas mãos de Deus e faça esta oração:\n“Senhor, eu entrego essa pessoa e essa situação nas Tuas mãos. Não quero mais ser governado por essa dor. Cura o meu coração e me ensina a perdoar, como também fui perdoado por Cristo. Faça-se a Tua vontade.”\n\n🔥 Propósito da Jornada: “Espírito Santo, prepara o meu coração, remove tudo aquilo que não vem de Ti e enche a minha vida da Tua graça e da Tua presença.”',
+    callToAction: 'Compartilhe esse devocional com alguém hoje! Não carregue amanhã aquilo que você pode entregar para Deus hoje. Deus continua no controle!',
+  },
+  {
     id: 'dia-47-guardar-fe',
     title: 'VOCÊ NÃO FOI CHAMADO PARA GUARDAR A SUA FÉ',
     tag: '🔥 DIA 47 DE 50 | Rumo ao Pentecostes',
