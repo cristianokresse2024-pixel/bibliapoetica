@@ -7,6 +7,21 @@
 
 export const DEVOTIONALS = [
   {
+    id: 'dia-49-cheios-enviados',
+    title: 'CHEIOS PARA SER ENVIADOS',
+    tag: '🔥 DIA 49 DE 50 | Rumo ao Pentecostes',
+    dateFormatted: 'Dia 49 de 50 • Rumo ao Pentecostes',
+    verse: '“Mas recebereis poder, ao descer sobre vós o Espírito Santo, e ser-me-eis testemunhas tanto em Jerusalém como em toda a Judeia e Samaria e até aos confins da terra.”',
+    verseRef: 'Atos 1:8',
+    author: 'Pr. Cristiano Kresse',
+    audioFileName: 'devocional-dia-49.m4a',
+    // ⏰ AGENDADO PARA LIBERAÇÃO AUTOMÁTICA EM 18/09 ÀS 05:00 DA MANHÃ (Fuso de Brasília)
+    releaseAt: '2026-09-18T05:00:00-03:00',
+    reflection: 'Chegamos ao penúltimo dia da nossa jornada rumo ao Pentecostes — 49 dias caminhando, refletindo e buscando uma intimidade mais profunda com Deus. E hoje o Senhor nos confronta com uma pergunta essencial: por que queremos ser cheios do Espírito Santo? É apenas para sentir arrepios, viver momentos emocionantes ou buscar consolo pessoal? Ou existe uma missão eterna por trás de tudo isso?\n\nJesus disse aos discípulos em Atos 1:8: “Recebereis poder e sereis minhas testemunhas”. O poder de Deus tem um propósito; a presença tem uma direção; o enchimento do Espírito aponta para o envio. Deus não nos enche como um recipiente fechado para acumular bênçãos, mas para transbordar na vida de outros. Ele consola você para que saiba consolar; restaura sua vida para que sua história encoraje quem perdeu a esperança; e ensina você para que seja instrumento de salvação.\n\nSer testemunha não exige ter resposta para todos os debates teológicos ou ocupar um púlpito: ser testemunha é simplesmente dizer com verdade o que Deus fez em sua vida. E a missão começa onde você já está — na sua casa, na sua família, no seu trabalho e nas conversas do dia a dia. Antes da missão vem a capacitação; antes do envio vem o revestimento do Espírito Santo.',
+    challenge: 'Faça hoje uma lista com 3 pessoas que Deus colocou perto de você (na família, no trabalho ou na vizinhança). Ore por cada uma delas e pergunte: “Senhor, como posso ser uma testemunha do Teu amor para elas?”. Se surgir uma oportunidade, compartilhe algo simples sobre o que Jesus fez na sua vida. Não espere ser perfeito: seja apenas disponível.\n\n🔥 Propósito da Jornada: “Espírito Santo, prepara o meu coração, enche a minha vida da Tua presença e capacita-me com poder para ser Tua testemunha onde eu estiver.”',
+    callToAction: 'Compartilhe este devocional com alguém hoje! Amanhã chegaremos ao DIA 50 DE 50, o grande encerramento da nossa jornada rumo ao Pentecostes! Prepare o seu coração para celebrar!',
+  },
+  {
     id: 'dia-48-coracao-livre',
     title: 'UM CORAÇÃO LIVRE PARA RECEBER',
     tag: '🔥 DIA 48 DE 50 | Rumo ao Pentecostes',
