@@ -66,6 +66,16 @@ if (onRender && (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE
     res.status(503).json({ error: 'Serviço temporariamente indisponível.' });
   });
 }
+if (onRender && (!process.env.MERCADOPAGO_ACCESS_TOKEN || !process.env.MERCADOPAGO_WEBHOOK_SECRET)) {
+  api.use(['/subscriptions', '/webhooks'], (_req, res) => {
+    res.status(503).json({ error: 'Assinaturas temporariamente indisponíveis.' });
+  });
+}
+if (onRender && !process.env.GROQ_API_KEY) {
+  api.all('/askIAViva', (_req, res) => {
+    res.status(503).json({ error: 'IA Viva temporariamente indisponível.' });
+  });
+}
 api.all('/admin/users', (_req, res) => res.status(503).json({ error: 'Diretório administrativo temporariamente indisponível.' }));
 api.all('/askIAViva', askIAViva);
 api.all('/auth/login', issueSession(login));
