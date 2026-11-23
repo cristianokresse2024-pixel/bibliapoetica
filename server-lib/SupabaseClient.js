@@ -1,4 +1,4 @@
-﻿// =============================================================================
+// =============================================================================
 // SUPABASE CLIENT & REST HELPER — BACKEND SERVERLESS OFICIAL
 // -----------------------------------------------------------------------------
 // Fornece conexão resiliente via PostgREST para autenticação, progressão e admin.
@@ -134,7 +134,8 @@ export async function getUserByEmail(email) {
   if (!email) return null;
   const cleanEmail = email.trim().toLowerCase();
   const { data, error } = await supabaseQuery(`user_profiles?email=eq.${encodeURIComponent(cleanEmail)}&select=*`);
-  if (error || !data || data.length === 0) return null;
+  if (error) throw new Error('Não foi possível consultar a conta no banco de dados.');
+  if (!data || data.length === 0) return null;
   return data[0];
 }
 
@@ -234,7 +235,8 @@ export async function getAllUsersWithStats() {
 export async function getUserProgress(userId) {
   if (!userId) return null;
   const { data, error } = await supabaseQuery(`user_progress?user_id=eq.${encodeURIComponent(userId)}&select=*`);
-  if (error || !data || data.length === 0) return null;
+  if (error) throw new Error('Não foi possível consultar o progresso no banco de dados.');
+  if (!data || data.length === 0) return null;
   return data[0];
 }
 

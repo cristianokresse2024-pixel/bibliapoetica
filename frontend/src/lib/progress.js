@@ -83,14 +83,14 @@ export function triggerDebouncedCloudSync() {
   }, 1200);
 }
 
-function emit() {
+function emit(sync = true) {
   try { localStorage.setItem(KEY, JSON.stringify(state)); } catch {}
   listeners.forEach((l) => l());
-  triggerDebouncedCloudSync();
+  if (sync) triggerDebouncedCloudSync();
 }
-function set(updater) {
+function set(updater, sync = true) {
   state = typeof updater === 'function' ? updater(state) : { ...state, ...updater };
-  emit();
+  emit(sync);
 }
 
 function subscribe(cb) { listeners.add(cb); return () => listeners.delete(cb); }
@@ -105,42 +105,46 @@ export function useProgress() {
  */
 export function hydrateProgressFromCloud(cloudProgress) {
   if (!cloudProgress) return;
+  const prayer = cloudProgress.prayer ?? cloudProgress.prayer_data;
+  const fast = cloudProgress.fast ?? cloudProgress.fast_data;
+  const gratitude = cloudProgress.gratitude ?? cloudProgress.gratitude_data ?? [];
   set((current) => {
     return {
       ...current,
-      read: { ...current.read, ...(cloudProgress.read || {}) },
+      read: { ...current.read, ...(cloudProgress.read ?? cloudProgress.read_chapters ?? {}) },
       favorites: Array.from(new Set([...(current.favorites || []), ...(cloudProgress.favorites || [])])),
       notes: { ...current.notes, ...(cloudProgress.notes || {}) },
       achievements: { ...current.achievements, ...(cloudProgress.achievements || {}) },
       xp: Math.max(current.xp || 0, cloudProgress.xp || 0),
       streak:
         (cloudProgress.streak?.count || 0) >= (current.streak?.count || 0)
-          ? cloudProgress.streak
+          ? cloudProgress.streak ?? current.streak
           : current.streak,
       prayer: {
-        totalSeconds: Math.max(current.prayer?.totalSeconds || 0, cloudProgress.prayer?.totalSeconds || 0),
-        sessions: Math.max(current.prayer?.sessions || 0, cloudProgress.prayer?.sessions || 0),
-        longest: Math.max(current.prayer?.longest || 0, cloudProgress.prayer?.longest || 0),
-        lastGoalMin: cloudProgress.prayer?.lastGoalMin || current.prayer?.lastGoalMin || 15,
-        log: { ...(current.prayer?.log || {}), ...(cloudProgress.prayer?.log || {}) },
-        history: [...(cloudProgress.prayer?.history || []), ...(current.prayer?.history || [])].slice(0, 100),
+        totalSeconds: Math.max(current.prayer?.totalSeconds || 0, prayer?.totalSeconds || 0),
+        sessions: Math.max(current.prayer?.sessions || 0, prayer?.sessions || 0),
+        longest: Math.max(current.prayer?.longest || 0, prayer?.longest || 0),
+        lastGoalMin: prayer?.lastGoalMin || current.prayer?.lastGoalMin || 15,
+        log: { ...(current.prayer?.log || {}), ...(prayer?.log || {}) },
+        history: [...(prayer?.history || []), ...(current.prayer?.history || [])].slice(0, 100),
       },
       fast: {
-        completed: Math.max(current.fast?.completed || 0, cloudProgress.fast?.completed || 0),
-        totalHours: Math.max(current.fast?.totalHours || 0, cloudProgress.fast?.totalHours || 0),
-        longestHours: Math.max(current.fast?.longestHours || 0, cloudProgress.fast?.longestHours || 0),
-        active: current.fast?.active || cloudProgress.fast?.active || null,
-        history: [...(cloudProgress.fast?.history || []), ...(current.fast?.history || [])].slice(0, 100),
+        completed: Math.max(current.fast?.completed || 0, fast?.completed || 0),
+        totalHours: Math.max(current.fast?.totalHours || 0, fast?.totalHours || 0),
+        longestHours: Math.max(current.fast?.longestHours || 0, fast?.longestHours || 0),
+        active: current.fast?.active || fast?.active || null,
+        history: [...(fast?.history || []), ...(current.fast?.history || [])].slice(0, 100),
       },
-      gratitude: [...(cloudProgress.gratitude || []), ...(current.gratitude || [])]
+      gratitude: [...gratitude, ...(current.gratitude || [])]
         .filter((v, i, a) => a.findIndex((t) => t.id === v.id) === i)
         .slice(0, 500),
-      lastRead: cloudProgress.lastRead || current.lastRead,
-      dailyGoal: cloudProgress.dailyGoal || current.dailyGoal || 3,
-      fontScale: cloudProgress.fontScale || current.fontScale || 1.0,
-      version: cloudProgress.version || current.version || 'nvi',
+      prayerReminder: cloudProgress.prayerReminder ?? cloudProgress.prayer_reminder ?? current.prayerReminder,
+      lastRead: cloudProgress.lastRead ?? cloudProgress.last_read ?? current.lastRead,
+      dailyGoal: cloudProgress.dailyGoal ?? cloudProgress.daily_goal ?? current.dailyGoal,
+      fontScale: cloudProgress.fontScale ?? cloudProgress.font_scale ?? current.fontScale,
+      version: cloudProgress.version ?? cloudProgress.bible_version ?? current.version,
     };
-  });
+  }, false);
 }
 
 // ---------- helpers de data ----------
