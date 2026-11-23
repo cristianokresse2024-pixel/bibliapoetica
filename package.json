@@ -7,11 +7,13 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "start": "node server.js",
     "preview": "vite preview",
     "data": "node scripts/build-bibles.mjs",
     "index:theology": "node scripts/index-theology.mjs"
   },
   "dependencies": {
+    "express": "^5.3.0",
     "pdf-parse": "^2.4.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
