@@ -38,7 +38,7 @@ async function supabaseQuery(path, options = {}) {
 
   const headers = {
     'apikey': SUPABASE_SERVICE_KEY,
-    'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+    ...(!SUPABASE_SERVICE_KEY.startsWith('sb_') && { Authorization: `Bearer ${SUPABASE_SERVICE_KEY}` }),
     'Content-Type': 'application/json',
     'Prefer': options.prefer || (isPatch ? 'return=minimal' : 'return=representation'),
     ...(options.headers || {}),

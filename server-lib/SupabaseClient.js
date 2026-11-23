@@ -1,4 +1,4 @@
-// =============================================================================
+﻿// =============================================================================
 // SUPABASE CLIENT & REST HELPER — BACKEND SERVERLESS OFICIAL
 // -----------------------------------------------------------------------------
 // Fornece conexão resiliente via PostgREST para autenticação, progressão e admin.
@@ -34,7 +34,7 @@ export async function supabaseQuery(path, options = {}) {
 
   const headers = {
     apikey: SUPABASE_KEY,
-    Authorization: `Bearer ${SUPABASE_KEY}`,
+    ...(!SUPABASE_KEY.startsWith('sb_') && { Authorization: `Bearer ${SUPABASE_KEY}` }),
     'Content-Type': 'application/json',
     Prefer: options.prefer || (isPatch ? 'return=representation' : 'return=representation'),
     ...(options.headers || {}),
