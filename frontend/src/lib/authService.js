@@ -233,4 +233,5 @@ function autoProvisionVipUser(email, password) {
  */
 export function logoutUser() {
   saveSession(null);
+  fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
 }

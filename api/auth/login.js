@@ -9,6 +9,7 @@ import {
   getUserProgress,
   supabaseQuery,
 } from '../../server-lib/SupabaseClient.js';
+import { isVipEmail } from '../../server-lib/VipAccounts.js';
 
 const ALLOWED_ORIGINS = (
   process.env.ALLOWED_ORIGINS ||
@@ -53,40 +54,14 @@ export default async function handler(req, res) {
     }
 
     const cleanEmail = email.trim().toLowerCase();
-    const isVip =
-      cleanEmail === 'cristianokresse2024@gmail.com' ||
-      cleanEmail === 'jheisyellen91@gmail.com' ||
-      cleanEmail === 'cristianokresse@gmail.com' ||
-      cleanEmail === 'contato@vivainteligente.com.br' ||
-      cleanEmail === 'admin@vivainteligente.com.br';
-
-    let user = await getUserByEmail(cleanEmail);
-
-    if (!user && isVip) {
-      // Auto-provisiona o perfil VIP do Dono para acesso irrestrito em qualquer dispositivo
-      user = {
-        id: 'usr_vip_' + cleanEmail.replace(/[^a-z0-9]/gi, '_'),
-        name: cleanEmail.includes('cristiano') ? 'Pr. Cristiano Kresse (Dono)' : 'VIP Vitalício',
-        email: cleanEmail,
-        password_hash: password,
-        plan: 'vip_lifetime',
-        role: 'admin',
-        referral_code: 'VIP_DONO',
-        created_at: new Date().toISOString(),
-        last_login_at: new Date().toISOString(),
-      };
-      await supabaseQuery('user_profiles', {
-        method: 'POST',
-        prefer: 'resolution=merge-duplicates,return=representation',
-        body: user,
-      });
-    }
+    const isVip = isVipEmail(cleanEmail);
+    const user = await getUserByEmail(cleanEmail);
 
     if (!user) {
       return res.status(404).json({ error: 'Usuário não encontrado. Verifique seu e-mail ou crie uma conta.' });
     }
 
-    if (user.password_hash && user.password_hash !== password && !isVip) {
+    if (!user.password_hash || user.password_hash !== password) {
       return res.status(401).json({ error: 'Senha incorreta. Tente novamente.' });
     }
 

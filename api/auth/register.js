@@ -4,6 +4,8 @@
 // Rota: POST /api/auth/register
 // =============================================================================
 
+import { randomUUID } from 'node:crypto';
+import { isVipEmail } from '../../server-lib/VipAccounts.js';
 import {
   getUserByEmail,
   upsertUserProfile,
@@ -43,7 +45,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { id, name, email, password, referralCode } = req.body || {};
+    const { name, email, password, referralCode } = req.body || {};
 
     if (!name || name.trim().length < 2) {
       return res.status(400).json({ error: 'Por favor, informe seu nome completo.' });
@@ -56,17 +58,16 @@ export default async function handler(req, res) {
     }
 
     const cleanEmail = email.trim().toLowerCase();
+    if (isVipEmail(cleanEmail)) {
+      return res.status(403).json({ error: 'Use a conta já cadastrada.' });
+    }
     const existing = await getUserByEmail(cleanEmail);
 
     if (existing) {
       return res.status(409).json({ error: 'Este e-mail já está cadastrado. Faça login para continuar.' });
     }
 
-    const isVip =
-      cleanEmail === 'cristianokresse2024@gmail.com' ||
-      cleanEmail === 'jheisyellen91@gmail.com';
-
-    const userId = id || 'usr_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+    const userId = `usr_${randomUUID()}`;
 
     // Gera código de indicação do novo usuário
     const prefix = (name || 'VIVA')
@@ -89,8 +90,8 @@ export default async function handler(req, res) {
       name: name.trim(),
       email: cleanEmail,
       password_hash: password,
-      plan: isVip ? 'vip_lifetime' : 'free',
-      role: isVip ? 'admin' : 'user',
+      plan: 'free',
+      role: 'user',
       referral_code: userReferralCode,
       referred_by: cleanRefUsed,
       created_at: new Date().toISOString(),
@@ -177,8 +178,8 @@ export default async function handler(req, res) {
         id: userId,
         name: name.trim(),
         email: cleanEmail,
-        plan: isVip ? 'vip_lifetime' : 'free',
-        role: isVip ? 'admin' : 'user',
+        plan: 'free',
+        role: 'user',
         referralCode: userReferralCode,
         referredBy: cleanRefUsed,
         createdAt: newUserPayload.created_at,
