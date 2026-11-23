@@ -49,6 +49,14 @@ export async function supabaseQuery(path, options = {}) {
 
     if (!res.ok) {
       const errText = await res.text().catch(() => '');
+      let code;
+      try {
+        const errorCode = JSON.parse(errText).code;
+        if (/^[\w-]{1,50}$/.test(errorCode)) code = errorCode;
+      } catch {
+        // Some gateway errors are returned as plain text.
+      }
+      console.error('[Supabase] Falha na API:', res.status, code || 'sem código');
       return { data: null, error: `Supabase Error (${res.status}): ${errText}` };
     }
 
@@ -57,6 +65,8 @@ export async function supabaseQuery(path, options = {}) {
     const data = await res.json().catch(() => null);
     return { data, error: null };
   } catch (err) {
+    const networkCode = err.cause?.code;
+    console.error('[Supabase] Falha de rede:', /^[A-Z0-9_]{1,50}$/.test(networkCode) ? networkCode : 'sem código');
     return { data: null, error: err.message };
   }
 }
